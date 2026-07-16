@@ -1,51 +1,20 @@
-# Kontobuch — Buchungssatz-Trainer
+# BuHaSim
 
-Ein kostenloser, interaktiver Trainer für Buchungssätze. Kein Framework, kein Build-Schritt — nur `index.html`, `styles.css` und `app.js`.
+**BuHaSim** ist ein kostenloser, interaktiver Trainer für Buchungssätze — für alle, die Rechnungswesen lernen oder unterrichten. Geschäftsfall lesen, Soll- und Haben-Konten sowie Betrag eintragen, sofortiges Feedback bekommen — und live in einer Bilanz sehen, wie sich jede Buchung auswirkt.
 
-## Lokal ausprobieren
+🔗 **Live:** [buhasim.fless.me](https://buhasim.fless.me) <!-- Link anpassen, sobald das Cloudflare-Pages-Projekt benannt ist -->
 
-Einfach `index.html` im Browser öffnen, oder mit einem lokalen Server:
+## Funktionen
 
-```
-npx serve .
-```
+- **Zwei Niveaustufen**: Grundlagen (einfache Buchungssätze) und Mit Umsatzsteuer (zusammengesetzte Buchungssätze mit Vorsteuer/Umsatzsteuer), plus ein gemischter Modus
+- **Live-Bilanz**: Aktiva und Passiva aktualisieren sich in Echtzeit mit jeder richtigen Buchung, inklusive laufendem Periodengewinn — optional ausblendbar
+- **T-Konto-Formular**: Eingabe im Soll/Haben-Format, wie im echten Kontenrahmen
+- **Fortschritt**: Punktestand und Serie richtiger Buchungen werden lokal im Browser gespeichert — kein Server, kein Konto nötig
 
-## Deployment auf Cloudflare Pages (über GitHub)
+## Hintergrund
 
-1. Repo auf GitHub anlegen und diese drei Dateien (`index.html`, `styles.css`, `app.js`) sowie diese `README.md` hochladen/pushen.
-2. Bei [Cloudflare Pages](https://pages.cloudflare.com/) einloggen → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-3. Das GitHub-Repo auswählen und autorisieren.
-4. Build-Einstellungen:
-   - **Framework preset:** `None`
-   - **Build command:** leer lassen
-   - **Build output directory:** `/` (Repo-Root, da die Dateien direkt dort liegen)
-5. **Save and Deploy** klicken. Nach ein paar Sekunden ist die Seite unter `<projekt>.pages.dev` erreichbar.
-6. Jeder Push auf den verbundenen Branch (z. B. `main`) löst automatisch ein neues Deployment aus.
+BuHaSim ist als reine Übungshilfe entstanden: kein Lehrbuch-Ersatz, keine verbindliche fachliche Beratung, sondern ein Werkzeug, um die Systematik von Soll und Haben durch Wiederholung zu verinnerlichen — gedacht für Schülerinnen, Schüler und alle, die Buchungssätze üben wollen.
 
-Optional: eine eigene Domain unter **Custom domains** im Cloudflare-Pages-Projekt hinterlegen.
+## Technik
 
-## Eigene Übungsfälle ergänzen
-
-Alle Fälle stehen als einfache Objekte in `app.js` im Array `cases`. Ein Fall sieht so aus:
-
-```js
-{
-  cat: "grundlagen", // "grundlagen" | "ust" | eigene Kategorie-ID
-  text: "Beschreibung des Geschäftsfalls …",
-  soll:  [{ a: "Waren", b: 800 }],
-  haben: [{ a: "Kasse", b: 800 }]
-}
-```
-
-`a` ist der Konto-Schlüssel aus dem `accounts`-Objekt oben in derselben Datei, `b` der Betrag. Mehrzeilige Buchungssätze (z. B. mit Umsatzsteuer) einfach als mehrere Einträge im `soll`- oder `haben`-Array angeben.
-
-Um eine neue Kategorie hinzuzufügen, in `index.html` einen weiteren Button im `.category-picker` ergänzen (`data-cat="..."` passend zum `cat`-Feld der Fälle).
-
-## Umfang
-
-- Grundlagen: einfache Buchungssätze (Aktiv-/Passivkonten, Aufwand/Ertrag)
-- Mit Umsatzsteuer: zusammengesetzte Buchungssätze mit Vorsteuer/Umsatzsteuer
-- Live-Bilanz, die sich mit jeder richtigen Buchung aktualisiert (optional ausblendbar)
-- Fortschritt (Punktestand, Serie) wird lokal im Browser gespeichert (`localStorage`), nicht serverseitig
-
-Nicht enthalten (mögliche Erweiterungen): Skonto/Rabatt, Abschreibungen, Diverse-Konten, Mehrsprachigkeit.
+Reines HTML, CSS und JavaScript, ohne Frameworks oder Build-Schritt. Gehostet über Cloudflare Pages.
