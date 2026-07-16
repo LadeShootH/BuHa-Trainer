@@ -64,6 +64,7 @@
 
         <div class="case-card">
           <p id="case-text">Lädt…</p>
+          <button type="button" id="explain-btn" class="explain-btn">Warum?</button>
         </div>
 
         <form id="booking-form" class="booking-form" autocomplete="off">
@@ -131,6 +132,16 @@
     </span>
   </div>
 </footer>
+
+<div id="explain-modal" class="modal-overlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="explain-modal-title">
+    <div class="modal-header">
+      <h3 id="explain-modal-title">Warum dieser Buchungssatz?</h3>
+      <button type="button" id="explain-close-btn" class="modal-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="explain-body" class="modal-body"></div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>
