@@ -30,7 +30,11 @@
     Warenverkauf: { type: "Er", label: "8010 Warenverkauf" },
     RSK: { type: "Er", label: "8050 Rücksendungen von Kunden" },
     NLK: { type: "Er", label: "8060 Nachlässe an Kunden" },
-    KSK: { type: "Er", label: "8080 Kundenskonti" }
+    KSK: { type: "Er", label: "8080 Kundenskonti" },
+
+    GuV: { type: "K", label: "9300 Gewinn- und Verlustkonto" },
+    SBK: { type: "K", label: "9400 Schlussbilanzkonto" },
+    EBK: { type: "K", label: "9100 Eröffnungsbilanzkonto" }
   };
 
   var openingBalances = {
@@ -103,6 +107,225 @@
       soll: [{ a: "VgK", b: 800 }, { a: "Zinsaufwendungen", b: 200 }], haben: [{ a: "Bank", b: 1000 }] }
   ];
 
+  // ---- Abschluss-Szenario: fester Jahresabschluss + Neueröffnung ----
+  var abschlussSzenario = {
+    aktiva: [
+      { a: "Kasse", b: 3200 },
+      { a: "Bank", b: 21500 },
+      { a: "Forderungen", b: 6300 },
+      { a: "Vorsteuer", b: 1100 },
+      { a: "Fuhrpark", b: 15000 },
+      { a: "Warenbestand", b: 12000 }
+    ],
+    passiva: [
+      { a: "Eigenkapital", b: 30000 },
+      { a: "Verbindlichkeiten", b: 4100 },
+      { a: "VgK", b: 18000 },
+      { a: "Umsatzsteuer", b: 4000 }
+    ],
+    aufwand: [
+      { a: "Wareneingang", b: 25000 },
+      { a: "Miete", b: 6000 },
+      { a: "Gehaelter", b: 12000 }
+    ],
+    ertrag: [
+      { a: "Warenverkauf", b: 46000 }
+    ]
+  };
+
+  var PHASE_NAMES = {
+    1: "Erfolgskonten abschließen",
+    2: "Gewinn/Verlust verbuchen",
+    3: "Bestandskonten abschließen (SBK)",
+    4: "Neues Jahr eröffnen (EBK)"
+  };
+
+  function buildAbschlussPhases() {
+    var aufwandSumme = abschlussSzenario.aufwand.reduce(function (s, l) { return s + l.b; }, 0);
+    var ertragSumme = abschlussSzenario.ertrag.reduce(function (s, l) { return s + l.b; }, 0);
+    var gewinn = ertragSumme - aufwandSumme;
+
+    var phase1 = [];
+    abschlussSzenario.aufwand.forEach(function (l) {
+      phase1.push({
+        text: "Schließe das Konto " + accounts[l.a].label + " ab (Saldo " + fmt(l.b) + " € im Soll).",
+        soll: [{ a: "GuV", b: l.b }], haben: [{ a: l.a, b: l.b }]
+      });
+    });
+    abschlussSzenario.ertrag.forEach(function (l) {
+      phase1.push({
+        text: "Schließe das Konto " + accounts[l.a].label + " ab (Saldo " + fmt(l.b) + " € im Haben).",
+        soll: [{ a: l.a, b: l.b }], haben: [{ a: "GuV", b: l.b }]
+      });
+    });
+
+    var phase2 = [{
+      text: gewinn >= 0
+        ? "Der Saldo des GuV-Kontos (Gewinn: " + fmt(gewinn) + " €) wird auf das Eigenkapitalkonto übertragen."
+        : "Der Saldo des GuV-Kontos (Verlust: " + fmt(Math.abs(gewinn)) + " €) wird auf das Eigenkapitalkonto übertragen.",
+      soll: gewinn >= 0 ? [{ a: "GuV", b: gewinn }] : [{ a: "Eigenkapital", b: Math.abs(gewinn) }],
+      haben: gewinn >= 0 ? [{ a: "Eigenkapital", b: gewinn }] : [{ a: "GuV", b: Math.abs(gewinn) }]
+    }];
+
+    var passivaNachGewinn = abschlussSzenario.passiva.map(function (l) {
+      return l.a === "Eigenkapital" ? { a: l.a, b: l.b + gewinn } : l;
+    });
+
+    var phase3 = [];
+    abschlussSzenario.aktiva.forEach(function (l) {
+      phase3.push({
+        text: "Schließe das Konto " + accounts[l.a].label + " ab (Saldo " + fmt(l.b) + " € im Soll).",
+        soll: [{ a: "SBK", b: l.b }], haben: [{ a: l.a, b: l.b }]
+      });
+    });
+    passivaNachGewinn.forEach(function (l) {
+      phase3.push({
+        text: "Schließe das Konto " + accounts[l.a].label + " ab (Saldo " + fmt(l.b) + " € im Haben).",
+        soll: [{ a: l.a, b: l.b }], haben: [{ a: "SBK", b: l.b }]
+      });
+    });
+
+    var phase4 = [];
+    abschlussSzenario.aktiva.forEach(function (l) {
+      phase4.push({
+        text: "Eröffne das Konto " + accounts[l.a].label + " mit einem Anfangsbestand von " + fmt(l.b) + " € (im Soll).",
+        soll: [{ a: l.a, b: l.b }], haben: [{ a: "EBK", b: l.b }]
+      });
+    });
+    passivaNachGewinn.forEach(function (l) {
+      phase4.push({
+        text: "Eröffne das Konto " + accounts[l.a].label + " mit einem Anfangsbestand von " + fmt(l.b) + " € (im Haben).",
+        soll: [{ a: "EBK", b: l.b }], haben: [{ a: l.a, b: l.b }]
+      });
+    });
+
+    return { 1: phase1, 2: phase2, 3: phase3, 4: phase4 };
+  }
+
+  var abschlussState = null;
+
+  function collectorForPhase(phase) {
+    if (phase === 1 || phase === 2) return "GuV";
+    if (phase === 3) return "SBK";
+    return "EBK";
+  }
+
+  function startAbschluss() {
+    abschlussState = { phases: buildAbschlussPhases(), phase: 1, taskIndex: 0, log: [], attempted: false, done: false };
+    loadAbschlussTask();
+  }
+
+  function loadAbschlussTask() {
+    var tasks = abschlussState.phases[abschlussState.phase];
+    var task = tasks[abschlussState.taskIndex];
+    caseTextEl.textContent = task.text;
+    document.getElementById("case-heading").textContent =
+      "Phase " + abschlussState.phase + "/4 – " + PHASE_NAMES[abschlussState.phase] +
+      " · Aufgabe " + (abschlussState.taskIndex + 1) + "/" + tasks.length;
+    resetRows();
+    feedbackEl.className = "feedback";
+    feedbackEl.textContent = "";
+    checkBtn.disabled = false;
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Nächste Aufgabe →";
+    abschlussState.attempted = false;
+    renderAbschlussPanel();
+  }
+
+  function renderAbschlussPanel() {
+    var key = collectorForPhase(abschlussState.phase);
+    var sollRows = [], habenRows = [];
+    abschlussState.log.forEach(function (entry) {
+      if (entry.soll[0].a === key) sollRows.push({ label: accounts[entry.haben[0].a].label, amount: entry.soll[0].b });
+      if (entry.haben[0].a === key) habenRows.push({ label: accounts[entry.soll[0].a].label, amount: entry.haben[0].b });
+    });
+
+    document.getElementById("bilanz-heading").textContent = "Live: " + accounts[key].label;
+    var labels = document.querySelectorAll(".bilanz-col-label");
+    labels[0].textContent = "Soll";
+    labels[1].textContent = "Haben";
+
+    var sollEl = document.getElementById("aktiva-rows");
+    var habenEl = document.getElementById("passiva-rows");
+    sollEl.innerHTML = ""; habenEl.innerHTML = "";
+    var sollTotal = 0, habenTotal = 0;
+    sollRows.forEach(function (r) { sollTotal += r.amount; sollEl.innerHTML += '<div class="bilanz-row"><span>an ' + r.label + "</span><span>" + fmt(r.amount) + "</span></div>"; });
+    habenRows.forEach(function (r) { habenTotal += r.amount; habenEl.innerHTML += '<div class="bilanz-row"><span>an ' + r.label + "</span><span>" + fmt(r.amount) + "</span></div>"; });
+
+    document.getElementById("aktiva-total").textContent = "Summe " + fmt(sollTotal);
+    document.getElementById("passiva-total").textContent = "Summe " + fmt(habenTotal);
+
+    var checkEl = document.getElementById("balance-check");
+    if (sollRows.length === 0 && habenRows.length === 0) {
+      checkEl.textContent = "Noch keine Buchung erfasst";
+      checkEl.className = "balance-check";
+    } else if (Math.round(sollTotal) === Math.round(habenTotal)) {
+      checkEl.textContent = "Konto ausgeglichen";
+      checkEl.className = "balance-check ok";
+    } else {
+      checkEl.textContent = "Noch nicht ausgeglichen (Differenz " + fmt(Math.abs(sollTotal - habenTotal)) + " €)";
+      checkEl.className = "balance-check off";
+    }
+  }
+
+  function handleAbschlussCheck(e) {
+    e.preventDefault();
+    var tasks = abschlussState.phases[abschlussState.phase];
+    var task = tasks[abschlussState.taskIndex];
+    var sollActual = readRows(sollRowsEl);
+    var habenActual = readRows(habenRowsEl);
+    var correct = normalizeLines(sollActual) === normalizeLines(task.soll) &&
+                  normalizeLines(habenActual) === normalizeLines(task.haben);
+
+    if (correct) {
+      var sollText = task.soll.map(function (l) { return accounts[l.a].label + " " + fmt(l.b) + " €"; }).join(" + ");
+      var habenText = task.haben.map(function (l) { return accounts[l.a].label; }).join(" + ");
+      feedbackEl.textContent = "Richtig: " + sollText + " an " + habenText;
+      feedbackEl.className = "feedback is-correct";
+      abschlussState.log.push({ soll: task.soll, haben: task.haben });
+      renderAbschlussPanel();
+      if (!abschlussState.attempted) { state.score++; state.streak++; }
+      scoreEl.textContent = state.score;
+      streakEl.textContent = state.streak;
+      saveProgress();
+      checkBtn.disabled = true;
+      nextBtn.disabled = false;
+    } else {
+      feedbackEl.textContent = "Noch nicht korrekt. Prüfe Konten und Soll/Haben-Seite.";
+      feedbackEl.className = "feedback is-wrong";
+      abschlussState.attempted = true;
+      state.streak = 0;
+      streakEl.textContent = state.streak;
+      saveProgress();
+    }
+  }
+
+  function advanceAbschluss() {
+    abschlussState.taskIndex++;
+    var tasks = abschlussState.phases[abschlussState.phase];
+    if (abschlussState.taskIndex >= tasks.length) {
+      if (abschlussState.phase >= 4) {
+        abschlussState.done = true;
+        showAbschlussComplete();
+        return;
+      }
+      abschlussState.phase++;
+      abschlussState.taskIndex = 0;
+    }
+    loadAbschlussTask();
+  }
+
+  function showAbschlussComplete() {
+    caseTextEl.textContent = "Geschafft! Der Jahresabschluss ist gebucht und das neue Jahr ist über das EBK eröffnet.";
+    document.getElementById("case-heading").textContent = "Abschluss abgeschlossen";
+    sollRowsEl.innerHTML = "";
+    habenRowsEl.innerHTML = "";
+    checkBtn.disabled = true;
+    nextBtn.disabled = true;
+    feedbackEl.className = "feedback";
+    feedbackEl.textContent = "";
+  }
+
   // ---- state ----
   var STORAGE_KEY = "buhasim_progress_v1";
   var state = {
@@ -148,8 +371,6 @@
   var sollRowsEl = document.getElementById("soll-rows");
   var habenRowsEl = document.getElementById("haben-rows");
   var caseTextEl = document.getElementById("case-text");
-  var caseNumEl = document.getElementById("case-num");
-  var caseTotalEl = document.getElementById("case-total");
   var scoreEl = document.getElementById("score");
   var streakEl = document.getElementById("streak");
   var feedbackEl = document.getElementById("feedback");
@@ -164,6 +385,7 @@
 
   function accountOptionsHtml(selected) {
     var groups = { A: "Aktivkonten", P: "Passivkonten", E: "Aufwandskonten", Er: "Ertragskonten" };
+    if (state.category === "abschluss") groups.K = "Abschlusskonten";
     var html = '<option value="">– Konto wählen –</option>';
     Object.keys(groups).forEach(function (g) {
       html += '<optgroup label="' + groups[g] + '">';
@@ -227,8 +449,8 @@
     }
     var c = state.pool[state.currentIndex];
     caseTextEl.textContent = c.text;
-    caseNumEl.textContent = state.currentIndex + 1;
-    caseTotalEl.textContent = state.pool.length;
+    document.getElementById("case-heading").textContent = "Fall " + (state.currentIndex + 1) + " / " + state.pool.length;
+    nextBtn.textContent = "Nächster Fall →";
     resetRows();
     feedbackEl.className = "feedback";
     feedbackEl.textContent = "";
@@ -323,21 +545,44 @@
     }
   }
 
-  document.getElementById("booking-form").addEventListener("submit", handleCheck);
+  function resetBilanzLabels() {
+    document.getElementById("bilanz-heading").textContent = "Live-Bilanz";
+    var labels = document.querySelectorAll(".bilanz-col-label");
+    labels[0].textContent = "Aktiva";
+    labels[1].textContent = "Passiva";
+  }
+
+  document.getElementById("booking-form").addEventListener("submit", function (e) {
+    if (state.category === "abschluss") { handleAbschlussCheck(e); } else { handleCheck(e); }
+  });
 
   nextBtn.addEventListener("click", function () {
-    state.currentIndex++;
-    loadCase();
+    if (state.category === "abschluss") { advanceAbschluss(); } else { state.currentIndex++; loadCase(); }
   });
+
+  var bilanzToggleWrapperEl = document.querySelector(".bilanz-toggle");
+  var bookingFormEl = document.getElementById("booking-form");
 
   document.querySelectorAll(".cat-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.querySelectorAll(".cat-btn").forEach(function (b) { b.classList.remove("is-active"); });
       btn.classList.add("is-active");
       state.category = btn.dataset.cat;
-      state.pool = poolForCategory(state.category);
-      state.currentIndex = 0;
-      loadCase();
+      bookingFormEl.classList.toggle("is-abschluss", state.category === "abschluss");
+
+      if (state.category === "abschluss") {
+        bilanzToggleWrapperEl.style.display = "none";
+        bilanzPanel.classList.remove("is-hidden");
+        startAbschluss();
+      } else {
+        bilanzToggleWrapperEl.style.display = "";
+        resetBilanzLabels();
+        bilanzPanel.classList.toggle("is-hidden", !bilanzToggle.checked);
+        state.pool = poolForCategory(state.category);
+        state.currentIndex = 0;
+        loadCase();
+        renderBilanz();
+      }
     });
   });
 
@@ -346,8 +591,12 @@
   });
 
   resetBilanzBtn.addEventListener("click", function () {
-    state.balances = Object.assign({}, openingBalances);
-    renderBilanz();
+    if (state.category === "abschluss") {
+      startAbschluss();
+    } else {
+      state.balances = Object.assign({}, openingBalances);
+      renderBilanz();
+    }
   });
 
   // ---- init ----
