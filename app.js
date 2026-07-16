@@ -380,6 +380,10 @@
   var bilanzPanel = document.getElementById("bilanz-panel");
   var resetBilanzBtn = document.getElementById("reset-bilanz-btn");
   var statCountEl = document.getElementById("stat-count");
+  var explainBtn = document.getElementById("explain-btn");
+  var explainModal = document.getElementById("explain-modal");
+  var explainBody = document.getElementById("explain-body");
+  var explainCloseBtn = document.getElementById("explain-close-btn");
 
   statCountEl.textContent = cases.length;
 
@@ -544,6 +548,58 @@
       saveProgress();
     }
   }
+
+  var ABSCHLUSS_NOTES = {
+    GuV: "Das GuV-Konto (9300) sammelt am Jahresende alle Erfolgskonten und ermittelt daraus Gewinn oder Verlust der Periode.",
+    SBK: "Das Schlussbilanzkonto (9400) übernimmt am Jahresende die Salden aller Bestandskonten und schließt sie ab.",
+    EBK: "Das Eröffnungsbilanzkonto (9100) eröffnet zu Beginn der neuen Periode die Bestandskonten mit den Salden aus dem Vorjahr."
+  };
+
+  var SEITE_REGELN = {
+    A_soll: "Zugang auf einem Aktivkonto — Aktivkonten werden im Soll gebucht, wenn sie zunehmen.",
+    A_haben: "Abgang auf einem Aktivkonto — Aktivkonten werden im Haben gebucht, wenn sie abnehmen.",
+    P_soll: "Abgang auf einem Passivkonto — Passivkonten werden im Soll gebucht, wenn sie abnehmen.",
+    P_haben: "Zugang auf einem Passivkonto — Passivkonten werden im Haben gebucht, wenn sie zunehmen.",
+    E_soll: "Ein Aufwand entsteht bzw. erhöht sich — Aufwandskonten werden wie Aktivkonten im Soll gebucht.",
+    E_haben: "Ein bereits gebuchter Aufwand wird gemindert (z. B. durch Rücksendung, Nachlass oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Haben.",
+    Er_soll: "Ein bereits gebuchter Ertrag wird gemindert (z. B. durch Rücksendung, Nachlass oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Soll.",
+    Er_haben: "Ein Ertrag entsteht bzw. erhöht sich — Ertragskonten werden wie Passivkonten im Haben gebucht."
+  };
+
+  function explainLineHtml(line, seite) {
+    var acc = accounts[line.a];
+    var reason = acc.type === "K" ? (ABSCHLUSS_NOTES[line.a] || "") : SEITE_REGELN[acc.type + "_" + seite];
+    return '<p class="explain-line"><strong>' + acc.label + "</strong> (" + fmt(line.b) + " €) steht im " +
+      (seite === "soll" ? "Soll" : "Haben") + ": " + reason + "</p>";
+  }
+
+  function showExplanationFor(task) {
+    var html = "";
+    task.soll.forEach(function (l) { html += explainLineHtml(l, "soll"); });
+    task.haben.forEach(function (l) { html += explainLineHtml(l, "haben"); });
+    var sollText = task.soll.map(function (l) { return accounts[l.a].label; }).join(" + ");
+    var habenText = task.haben.map(function (l) { return accounts[l.a].label; }).join(" + ");
+    html += '<p class="explain-summary">Buchungssatz: ' + sollText + " an " + habenText + "</p>";
+    explainBody.innerHTML = html;
+    explainModal.hidden = false;
+  }
+
+  explainBtn.addEventListener("click", function () {
+    var task;
+    if (state.category === "abschluss") {
+      if (!abschlussState || abschlussState.done) return;
+      task = abschlussState.phases[abschlussState.phase][abschlussState.taskIndex];
+    } else {
+      task = state.pool[state.currentIndex];
+    }
+    if (task) showExplanationFor(task);
+  });
+
+  explainCloseBtn.addEventListener("click", function () { explainModal.hidden = true; });
+  explainModal.addEventListener("click", function (e) { if (e.target === explainModal) explainModal.hidden = true; });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !explainModal.hidden) explainModal.hidden = true;
+  });
 
   function resetBilanzLabels() {
     document.getElementById("bilanz-heading").textContent = "Live-Bilanz";
