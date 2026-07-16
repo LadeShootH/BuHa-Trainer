@@ -64,7 +64,6 @@
 
         <div class="case-card">
           <p id="case-text">Lädt…</p>
-          <button type="button" id="explain-btn" class="explain-btn">Warum?</button>
         </div>
 
         <form id="booking-form" class="booking-form" autocomplete="off">
@@ -88,7 +87,10 @@
           </div>
         </form>
 
-        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite">
+          <span id="feedback-text"></span>
+          <button type="button" id="explain-btn" class="explain-btn" hidden>Warum?</button>
+        </div>
       </section>
 
       <aside id="bilanz-panel" class="bilanz-panel" aria-labelledby="bilanz-heading">
