@@ -68,10 +68,8 @@ a{color:inherit;}
 
 .case-panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;}
 .case-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:12px;font-family:var(--font-mono);}
-.case-card{background:var(--surface-2);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;min-height:64px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.case-card{background:var(--surface-2);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;min-height:64px;display:flex;align-items:center;}
 #case-text{margin:0;font-size:16px;}
-.explain-btn{flex:none;background:none;border:1px solid var(--line);border-radius:4px;font-size:12px;color:var(--ink-soft);cursor:pointer;padding:5px 10px;white-space:nowrap;}
-.explain-btn:hover{border-color:var(--accent-credit);color:var(--accent-credit);}
 
 /* explain modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(22,34,43,0.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;}
@@ -125,8 +123,11 @@ button{font-family:var(--font-body);cursor:pointer;}
 .btn-secondary:disabled{opacity:.4;cursor:not-allowed;}
 
 .feedback{margin-top:14px;font-size:14px;padding:10px 14px;border-radius:var(--radius);display:none;}
-.feedback.is-correct{display:block;background:var(--accent-credit-bg);color:var(--accent-credit);}
-.feedback.is-wrong{display:block;background:var(--error-bg);color:var(--error);}
+.feedback.is-correct{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--accent-credit-bg);color:var(--accent-credit);}
+.feedback.is-wrong{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--error-bg);color:var(--error);}
+.explain-btn{flex:none;background:none;border:1px solid currentColor;border-radius:4px;font-size:12px;color:inherit;cursor:pointer;padding:5px 10px;white-space:nowrap;opacity:0.85;}
+.explain-btn:hover{opacity:1;}
+.explain-btn[hidden]{display:none;}
 
 /* bilanz panel */
 .bilanz-panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;}
@@ -160,8 +161,6 @@ button{font-family:var(--font-body);cursor:pointer;}
   .tool-section{padding:20px 16px 48px;}
   .tool-controls{flex-direction:column;align-items:flex-start;gap:12px;}
   .case-panel, .bilanz-panel{padding:16px;}
-  .case-card{flex-direction:column;align-items:stretch;}
-  .explain-btn{align-self:flex-start;}
   .modal-box{padding:18px;}
   .case-meta{flex-direction:column;gap:4px;}
   .t-account{flex-direction:column;}
