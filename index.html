@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kontobuch — Buchungssatz-Trainer für Rechnungswesen</title>
+<meta name="description" content="Kostenloser, interaktiver Trainer für Buchungssätze: Geschäftsfälle lösen, Soll und Haben bestimmen und die Wirkung live in der Bilanz sehen." />
+<link rel="icon" href="data:," />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="wordmark">
+      <span class="eyebrow">Buchungssatz-Trainer</span>
+      <h1>Kontobuch</h1>
+    </div>
+    <nav class="header-nav">
+      <a href="#uebung">Üben</a>
+      <a href="#ueber">Über</a>
+      <a href="https://github.com/" target="_blank" rel="noopener" class="gh-link">GitHub ↗</a>
+    </nav>
+  </div>
+  <div class="ledger-rule" aria-hidden="true"></div>
+</header>
+
+<section class="intro wrap">
+  <p class="intro-text">Löse Geschäftsfälle, wie sie in Klausuren zum Rechnungswesen vorkommen: Konten bestimmen, Soll und Haben zuordnen, Betrag eintragen. Die Bilanz rechts reagiert sofort auf jede richtige Buchung.</p>
+  <div class="stat-row">
+    <div class="stat-chip"><span class="stat-num" id="stat-count">0</span><span class="stat-label">Übungsfälle</span></div>
+    <div class="stat-chip"><span class="stat-num">3</span><span class="stat-label">Niveaustufen</span></div>
+    <div class="stat-chip"><span class="stat-num">0€</span><span class="stat-label">kostenlos</span></div>
+  </div>
+</section>
+
+<main id="uebung" class="tool-section">
+  <div class="wrap">
+
+    <div class="tool-controls">
+      <div class="category-picker" role="group" aria-label="Niveaustufe wählen">
+        <button class="cat-btn is-active" data-cat="grundlagen">Grundlagen</button>
+        <button class="cat-btn" data-cat="ust">Mit Umsatzsteuer</button>
+        <button class="cat-btn" data-cat="gemischt">Gemischt</button>
+      </div>
+      <label class="bilanz-toggle">
+        <input type="checkbox" id="toggle-bilanz" checked />
+        Live-Bilanz anzeigen
+      </label>
+    </div>
+
+    <div class="tool-grid">
+
+      <section class="case-panel" aria-labelledby="case-heading">
+        <div class="case-meta">
+          <span id="case-heading">Fall <span id="case-num">1</span> / <span id="case-total">–</span></span>
+          <span class="score-display">Richtig: <span id="score">0</span> · Serie: <span id="streak">0</span></span>
+        </div>
+
+        <div class="case-card">
+          <p id="case-text">Lädt…</p>
+        </div>
+
+        <form id="booking-form" class="booking-form" autocomplete="off">
+          <div class="t-account">
+            <div class="t-side" data-side="soll">
+              <div class="t-side-label">Soll</div>
+              <div id="soll-rows" class="posting-rows"></div>
+              <button type="button" class="add-row-btn" data-side="soll">+ Konto</button>
+            </div>
+            <div class="t-divider" aria-hidden="true"></div>
+            <div class="t-side" data-side="haben">
+              <div class="t-side-label">Haben</div>
+              <div id="haben-rows" class="posting-rows"></div>
+              <button type="button" class="add-row-btn" data-side="haben">+ Konto</button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="check-btn" class="btn-primary">Buchungssatz prüfen</button>
+            <button type="button" id="next-btn" class="btn-secondary" disabled>Nächster Fall →</button>
+          </div>
+        </form>
+
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+      </section>
+
+      <aside id="bilanz-panel" class="bilanz-panel" aria-labelledby="bilanz-heading">
+        <div class="bilanz-header">
+          <h2 id="bilanz-heading">Live-Bilanz</h2>
+          <button type="button" id="reset-bilanz-btn" class="reset-link">Zurücksetzen</button>
+        </div>
+        <div class="bilanz-columns">
+          <div class="bilanz-col">
+            <p class="bilanz-col-label">Aktiva</p>
+            <div id="aktiva-rows" class="bilanz-rows"></div>
+          </div>
+          <div class="bilanz-col">
+            <p class="bilanz-col-label">Passiva</p>
+            <div id="passiva-rows" class="bilanz-rows"></div>
+          </div>
+        </div>
+        <div class="bilanz-total">
+          <span id="aktiva-total"></span>
+          <span id="passiva-total"></span>
+        </div>
+        <p id="balance-check" class="balance-check"></p>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<section id="ueber" class="about wrap">
+  <h2>Über dieses Tool</h2>
+  <p>Kontobuch ist ein freies Übungstool für Buchungssätze auf Grundlagen-Niveau, mit Erweiterungen für Umsatzsteuer. Es ersetzt kein Lehrbuch, hilft aber dabei, die Systematik von Soll und Haben durch aktives Üben zu verinnerlichen. Der Quellcode ist offen — Lehrkräfte und Lernende können eigene Fälle ergänzen.</p>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>Kontobuch · gebaut zum Lernen</span>
+    <a href="https://github.com/" target="_blank" rel="noopener">Quellcode auf GitHub</a>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
