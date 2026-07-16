@@ -63,7 +63,7 @@
   ];
 
   // ---- state ----
-  var STORAGE_KEY = "kontobuch_progress_v1";
+  var STORAGE_KEY = "buhasim_progress_v1";
   var state = {
     category: "grundlagen",
     pool: [],
