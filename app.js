@@ -1,65 +1,106 @@
 (function () {
   "use strict";
 
-  // ---- account master data ----
+  // ---- account master data (nach Großhandelskontenrahmen, GKR) ----
   var accounts = {
-    Kasse: { type: "A", label: "Kasse" },
-    Bank: { type: "A", label: "Bank" },
-    Forderungen: { type: "A", label: "Forderungen a. L+L" },
-    Waren: { type: "A", label: "Waren" },
-    Fuhrpark: { type: "A", label: "Fuhrpark" },
-    Vorsteuer: { type: "A", label: "Vorsteuer" },
-    Eigenkapital: { type: "P", label: "Eigenkapital" },
-    Bankdarlehen: { type: "P", label: "Bankdarlehen" },
-    Verbindlichkeiten: { type: "P", label: "Verbindlichkeiten a. L+L" },
-    Umsatzsteuer: { type: "P", label: "Umsatzsteuer" },
-    Mietaufwand: { type: "E", label: "Mietaufwand" },
-    Loehne: { type: "E", label: "Löhne" },
-    Buerobedarf: { type: "E", label: "Bürobedarf" },
-    Umsatzerloese: { type: "Er", label: "Umsatzerlöse" }
+    Kasse: { type: "A", label: "1510 Kasse" },
+    Bank: { type: "A", label: "1310 Bank" },
+    Forderungen: { type: "A", label: "1010 Forderungen a. L+L" },
+    Vorsteuer: { type: "A", label: "1400 Vorsteuer" },
+    Fuhrpark: { type: "A", label: "0340 Fuhrpark" },
+    BGA: { type: "A", label: "0330 Betriebs- u. Geschäftsausstattung" },
+    Warenbestand: { type: "A", label: "3910 Warenbestände" },
+
+    Eigenkapital: { type: "P", label: "0610 Eigenkapital" },
+    VgK: { type: "P", label: "0820 Verbindl. ggü. Kreditinstituten" },
+    Verbindlichkeiten: { type: "P", label: "1710 Verbindlichkeiten a. L+L" },
+    Umsatzsteuer: { type: "P", label: "1800 Umsatzsteuer" },
+
+    Wareneingang: { type: "E", label: "3010 Wareneingang" },
+    Warenbezugskosten: { type: "E", label: "3020 Warenbezugskosten" },
+    RSL: { type: "E", label: "3050 Rücksendungen an Lieferanten" },
+    NLL: { type: "E", label: "3060 Nachlässe von Lieferanten" },
+    LSK: { type: "E", label: "3080 Liefererskonti" },
+    Gehaelter: { type: "E", label: "4020 Gehälter" },
+    Miete: { type: "E", label: "4110 Miete" },
+    Werbekosten: { type: "E", label: "4400 Werbe- u. Reisekosten" },
+    Buerobedarf: { type: "E", label: "4810 Bürobedarf" },
+    Zinsaufwendungen: { type: "E", label: "2100 Zinsaufwendungen" },
+
+    Warenverkauf: { type: "Er", label: "8010 Warenverkauf" },
+    RSK: { type: "Er", label: "8050 Rücksendungen von Kunden" },
+    NLK: { type: "Er", label: "8060 Nachlässe an Kunden" },
+    KSK: { type: "Er", label: "8080 Kundenskonti" }
   };
 
   var openingBalances = {
-    Kasse: 5000, Bank: 20000, Waren: 10000, Fuhrpark: 15000,
-    Forderungen: 0, Vorsteuer: 0,
-    Eigenkapital: 30000, Bankdarlehen: 20000, Verbindlichkeiten: 0, Umsatzsteuer: 0,
-    Mietaufwand: 0, Loehne: 0, Buerobedarf: 0, Umsatzerloese: 0
+    Kasse: 5000, Bank: 20000, Forderungen: 0, Vorsteuer: 0, Fuhrpark: 15000, BGA: 0, Warenbestand: 10000,
+    Eigenkapital: 30000, VgK: 20000, Verbindlichkeiten: 0, Umsatzsteuer: 0,
+    Wareneingang: 0, Warenbezugskosten: 0, RSL: 0, NLL: 0, LSK: 0,
+    Gehaelter: 0, Miete: 0, Werbekosten: 0, Buerobedarf: 0, Zinsaufwendungen: 0,
+    Warenverkauf: 0, RSK: 0, NLK: 0, KSK: 0
   };
 
-  var AKTIVA_KEYS = ["Kasse", "Bank", "Forderungen", "Waren", "Fuhrpark", "Vorsteuer"];
-  var PASSIVA_KEYS = ["Eigenkapital", "Bankdarlehen", "Verbindlichkeiten", "Umsatzsteuer"];
+  var AKTIVA_KEYS = ["Kasse", "Bank", "Forderungen", "Vorsteuer", "Fuhrpark", "BGA", "Warenbestand"];
+  var PASSIVA_KEYS = ["Eigenkapital", "VgK", "Verbindlichkeiten", "Umsatzsteuer"];
 
   // ---- case pool ----
-  // soll / haben are arrays of {account, amount} so cases can be simple (1:1) or composed (n:1 / 1:n)
+  // soll / haben are arrays of {a: Kontoschlüssel, b: Betrag} — so ein Fall kann
+  // einfach (1:1) oder zusammengesetzt (mehrere Konten je Seite) sein.
   var cases = [
-    { cat: "grundlagen", text: "Der Betrieb kauft Waren für 800 € und bezahlt sofort in bar.",
-      soll: [{ a: "Waren", b: 800 }], haben: [{ a: "Kasse", b: 800 }] },
+    // -- grundlagen: einfache 1:1-Buchungssätze --
+    { cat: "grundlagen", text: "Der Großhandel kauft Waren für 800 € und bezahlt sofort in bar.",
+      soll: [{ a: "Wareneingang", b: 800 }], haben: [{ a: "Kasse", b: 800 }] },
     { cat: "grundlagen", text: "Ein Kunde begleicht eine offene Forderung über 1.200 € per Überweisung.",
       soll: [{ a: "Bank", b: 1200 }], haben: [{ a: "Forderungen", b: 1200 }] },
-    { cat: "grundlagen", text: "Der Betrieb kauft Waren für 3.000 € auf Ziel (Rechnung).",
-      soll: [{ a: "Waren", b: 3000 }], haben: [{ a: "Verbindlichkeiten", b: 3000 }] },
+    { cat: "grundlagen", text: "Der Großhandel kauft Waren für 3.000 € auf Ziel.",
+      soll: [{ a: "Wareneingang", b: 3000 }], haben: [{ a: "Verbindlichkeiten", b: 3000 }] },
     { cat: "grundlagen", text: "Die Monatsmiete von 900 € wird per Bank bezahlt.",
-      soll: [{ a: "Mietaufwand", b: 900 }], haben: [{ a: "Bank", b: 900 }] },
+      soll: [{ a: "Miete", b: 900 }], haben: [{ a: "Bank", b: 900 }] },
     { cat: "grundlagen", text: "Waren werden für 1.500 € gegen Barzahlung verkauft.",
-      soll: [{ a: "Kasse", b: 1500 }], haben: [{ a: "Umsatzerloese", b: 1500 }] },
-    { cat: "grundlagen", text: "Die Löhne in Höhe von 2.000 € werden per Bank überwiesen.",
-      soll: [{ a: "Loehne", b: 2000 }], haben: [{ a: "Bank", b: 2000 }] },
+      soll: [{ a: "Kasse", b: 1500 }], haben: [{ a: "Warenverkauf", b: 1500 }] },
+    { cat: "grundlagen", text: "Die Gehälter in Höhe von 2.000 € werden per Bank überwiesen.",
+      soll: [{ a: "Gehaelter", b: 2000 }], haben: [{ a: "Bank", b: 2000 }] },
     { cat: "grundlagen", text: "Waren werden für 2.400 € auf Ziel verkauft.",
-      soll: [{ a: "Forderungen", b: 2400 }], haben: [{ a: "Umsatzerloese", b: 2400 }] },
+      soll: [{ a: "Forderungen", b: 2400 }], haben: [{ a: "Warenverkauf", b: 2400 }] },
     { cat: "grundlagen", text: "Eine offene Lieferantenrechnung über 1.000 € wird per Bank beglichen.",
       soll: [{ a: "Verbindlichkeiten", b: 1000 }], haben: [{ a: "Bank", b: 1000 }] },
-    { cat: "grundlagen", text: "Der Betrieb zahlt 2.000 € bar auf das Bankkonto ein.",
+    { cat: "grundlagen", text: "Der Großhandel zahlt 2.000 € bar auf das Bankkonto ein.",
       soll: [{ a: "Bank", b: 2000 }], haben: [{ a: "Kasse", b: 2000 }] },
-    { cat: "grundlagen", text: "Ein Firmenfahrzeug wird für 12.000 € per Banküberweisung gekauft.",
-      soll: [{ a: "Fuhrpark", b: 12000 }], haben: [{ a: "Bank", b: 12000 }] },
-    { cat: "ust", text: "Wareneinkauf auf Ziel, Netto 1.000 €, zzgl. 19% Umsatzsteuer (190 €).",
-      soll: [{ a: "Waren", b: 1000 }, { a: "Vorsteuer", b: 190 }], haben: [{ a: "Verbindlichkeiten", b: 1190 }] },
-    { cat: "ust", text: "Warenverkauf auf Ziel, Netto 2.000 €, zzgl. 19% Umsatzsteuer (380 €).",
-      soll: [{ a: "Forderungen", b: 2380 }], haben: [{ a: "Umsatzerloese", b: 2000 }, { a: "Umsatzsteuer", b: 380 }] },
-    { cat: "ust", text: "Kauf von Bürobedarf gegen bar, Netto 100 €, zzgl. 19% Umsatzsteuer (19 €).",
+    { cat: "grundlagen", text: "Für eine Wareneinlieferung fallen Frachtkosten (Warenbezugskosten) von 150 € an, die bar bezahlt werden.",
+      soll: [{ a: "Warenbezugskosten", b: 150 }], haben: [{ a: "Kasse", b: 150 }] },
+
+    // -- mit umsatzsteuer: zusammengesetzte Buchungssätze mit Vorsteuer/USt --
+    { cat: "ust", text: "Wareneinkauf auf Ziel, Netto 1.000 €, zzgl. 19 % Umsatzsteuer (190 €).",
+      soll: [{ a: "Wareneingang", b: 1000 }, { a: "Vorsteuer", b: 190 }], haben: [{ a: "Verbindlichkeiten", b: 1190 }] },
+    { cat: "ust", text: "Warenverkauf auf Ziel, Netto 2.000 €, zzgl. 19 % Umsatzsteuer (380 €).",
+      soll: [{ a: "Forderungen", b: 2380 }], haben: [{ a: "Warenverkauf", b: 2000 }, { a: "Umsatzsteuer", b: 380 }] },
+    { cat: "ust", text: "Kauf von Bürobedarf gegen bar, Netto 100 €, zzgl. 19 % Umsatzsteuer (19 €).",
       soll: [{ a: "Buerobedarf", b: 100 }, { a: "Vorsteuer", b: 19 }], haben: [{ a: "Kasse", b: 119 }] },
-    { cat: "ust", text: "Barverkauf von Waren, Netto 500 €, zzgl. 19% Umsatzsteuer (95 €).",
-      soll: [{ a: "Kasse", b: 595 }], haben: [{ a: "Umsatzerloese", b: 500 }, { a: "Umsatzsteuer", b: 95 }] }
+    { cat: "ust", text: "Barverkauf von Waren, Netto 500 €, zzgl. 19 % Umsatzsteuer (95 €).",
+      soll: [{ a: "Kasse", b: 595 }], haben: [{ a: "Warenverkauf", b: 500 }, { a: "Umsatzsteuer", b: 95 }] },
+    { cat: "ust", text: "Ein Firmenfahrzeug wird auf Ziel gekauft, Netto 10.000 €, zzgl. 19 % Umsatzsteuer (1.900 €).",
+      soll: [{ a: "Fuhrpark", b: 10000 }, { a: "Vorsteuer", b: 1900 }], haben: [{ a: "Verbindlichkeiten", b: 11900 }] },
+    { cat: "ust", text: "Werbekosten werden per Bank bezahlt, Netto 300 €, zzgl. 19 % Umsatzsteuer (57 €).",
+      soll: [{ a: "Werbekosten", b: 300 }, { a: "Vorsteuer", b: 57 }], haben: [{ a: "Bank", b: 357 }] },
+
+    // -- schwer: Rücksendungen, Nachlässe, Skonto, zusammengesetzte Fälle mit mehreren Konten --
+    { cat: "schwer", text: "Der Großhandel schickt mangelhafte Ware im Wert von netto 300 € (zzgl. 19 % USt, 57 €) an den Lieferanten zurück; ursprünglich auf Ziel gekauft.",
+      soll: [{ a: "Verbindlichkeiten", b: 357 }], haben: [{ a: "RSL", b: 300 }, { a: "Vorsteuer", b: 57 }] },
+    { cat: "schwer", text: "Wegen einer Mängelrüge gewährt ein Lieferant nachträglich einen Nachlass von netto 200 € (zzgl. 19 % USt, 38 €) auf eine offene Rechnung.",
+      soll: [{ a: "Verbindlichkeiten", b: 238 }], haben: [{ a: "NLL", b: 200 }, { a: "Vorsteuer", b: 38 }] },
+    { cat: "schwer", text: "Ein Kunde schickt Ware im Wert von netto 400 € (zzgl. 19 % USt, 76 €) zurück; ursprünglich auf Ziel verkauft.",
+      soll: [{ a: "RSK", b: 400 }, { a: "Umsatzsteuer", b: 76 }], haben: [{ a: "Forderungen", b: 476 }] },
+    { cat: "schwer", text: "Wegen einer Mängelrüge gewährt der Großhandel einem Kunden nachträglich einen Nachlass von netto 200 € (zzgl. 19 % USt, 38 €).",
+      soll: [{ a: "NLK", b: 200 }, { a: "Umsatzsteuer", b: 38 }], haben: [{ a: "Forderungen", b: 238 }] },
+    { cat: "schwer", text: "Eine Verbindlichkeit über 1.000 € wird innerhalb der Skontofrist beglichen: 2 % Skonto (20 €) werden abgezogen, der Restbetrag von 980 € per Bank überwiesen.",
+      soll: [{ a: "Verbindlichkeiten", b: 1000 }], haben: [{ a: "Bank", b: 980 }, { a: "LSK", b: 20 }] },
+    { cat: "schwer", text: "Ein Kunde begleicht eine Forderung von 2.000 € abzüglich 3 % Kundenskonto (60 €); der Restbetrag von 1.940 € geht per Bank ein.",
+      soll: [{ a: "Bank", b: 1940 }, { a: "KSK", b: 60 }], haben: [{ a: "Forderungen", b: 2000 }] },
+    { cat: "schwer", text: "Neue Büroausstattung wird auf Ziel gekauft, Netto 1.500 €, zzgl. 19 % Umsatzsteuer (285 €).",
+      soll: [{ a: "BGA", b: 1500 }, { a: "Vorsteuer", b: 285 }], haben: [{ a: "Verbindlichkeiten", b: 1785 }] },
+    { cat: "schwer", text: "Für ein Darlehen wird per Bank eine Rate von 1.000 € gezahlt: 800 € Tilgung und 200 € Zinsen.",
+      soll: [{ a: "VgK", b: 800 }, { a: "Zinsaufwendungen", b: 200 }], haben: [{ a: "Bank", b: 1000 }] }
   ];
 
   // ---- state ----
@@ -92,7 +133,6 @@
 
   function poolForCategory(cat) {
     var list = cat === "gemischt" ? cases.slice() : cases.filter(function (c) { return c.cat === cat; });
-    // shuffle (Fisher-Yates)
     for (var i = list.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
       var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
@@ -137,7 +177,7 @@
     return html;
   }
 
-  function makeRow(side) {
+  function makeRow() {
     var row = document.createElement("div");
     row.className = "posting-row";
     row.innerHTML =
@@ -149,14 +189,14 @@
   function addRow(side) {
     var container = side === "soll" ? sollRowsEl : habenRowsEl;
     if (container.children.length >= 2) return;
-    container.appendChild(makeRow(side));
+    container.appendChild(makeRow());
   }
 
   function resetRows() {
     sollRowsEl.innerHTML = "";
     habenRowsEl.innerHTML = "";
-    sollRowsEl.appendChild(makeRow("soll"));
-    habenRowsEl.appendChild(makeRow("haben"));
+    sollRowsEl.appendChild(makeRow());
+    habenRowsEl.appendChild(makeRow());
   }
 
   document.querySelectorAll(".add-row-btn").forEach(function (btn) {
@@ -208,8 +248,17 @@
     });
   }
 
+  function computeGewinn() {
+    var gewinn = 0;
+    Object.keys(accounts).forEach(function (k) {
+      if (accounts[k].type === "Er") gewinn += state.balances[k];
+      if (accounts[k].type === "E") gewinn -= state.balances[k];
+    });
+    return gewinn;
+  }
+
   function renderBilanz() {
-    var gewinn = state.balances.Umsatzerloese - state.balances.Mietaufwand - state.balances.Loehne - state.balances.Buerobedarf;
+    var gewinn = computeGewinn();
 
     var aktivaEl = document.getElementById("aktiva-rows");
     aktivaEl.innerHTML = "";
@@ -225,7 +274,7 @@
     PASSIVA_KEYS.forEach(function (k) {
       var val = state.balances[k];
       var label = accounts[k].label;
-      if (k === "Eigenkapital") { val += gewinn; label = "Eigenkapital (inkl. Gewinn)"; }
+      if (k === "Eigenkapital") { val += gewinn; label = accounts[k].label + " (inkl. Gewinn)"; }
       passivaTotal += val;
       passivaEl.innerHTML += '<div class="bilanz-row"><span>' + label + "</span><span>" + fmt(val) + "</span></div>";
     });
