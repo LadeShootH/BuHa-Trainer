@@ -224,7 +224,8 @@
       " · Aufgabe " + (abschlussState.taskIndex + 1) + "/" + tasks.length;
     resetRows();
     feedbackEl.className = "feedback";
-    feedbackEl.textContent = "";
+    feedbackTextEl.textContent = "";
+    explainBtn.hidden = true;
     checkBtn.disabled = false;
     nextBtn.disabled = true;
     nextBtn.textContent = "Nächste Aufgabe →";
@@ -280,8 +281,9 @@
     if (correct) {
       var sollText = task.soll.map(function (l) { return accounts[l.a].label + " " + fmt(l.b) + " €"; }).join(" + ");
       var habenText = task.haben.map(function (l) { return accounts[l.a].label; }).join(" + ");
-      feedbackEl.textContent = "Richtig: " + sollText + " an " + habenText;
+      feedbackTextEl.textContent = "Richtig: " + sollText + " an " + habenText;
       feedbackEl.className = "feedback is-correct";
+      explainBtn.hidden = false;
       abschlussState.log.push({ soll: task.soll, haben: task.haben });
       renderAbschlussPanel();
       if (!abschlussState.attempted) { state.score++; state.streak++; }
@@ -291,8 +293,9 @@
       checkBtn.disabled = true;
       nextBtn.disabled = false;
     } else {
-      feedbackEl.textContent = "Noch nicht korrekt. Prüfe Konten und Soll/Haben-Seite.";
+      feedbackTextEl.textContent = "Noch nicht korrekt. Prüfe Konten und Soll/Haben-Seite.";
       feedbackEl.className = "feedback is-wrong";
+      explainBtn.hidden = false;
       abschlussState.attempted = true;
       state.streak = 0;
       streakEl.textContent = state.streak;
@@ -323,7 +326,8 @@
     checkBtn.disabled = true;
     nextBtn.disabled = true;
     feedbackEl.className = "feedback";
-    feedbackEl.textContent = "";
+    feedbackTextEl.textContent = "";
+    explainBtn.hidden = true;
   }
 
   // ---- state ----
@@ -374,6 +378,7 @@
   var scoreEl = document.getElementById("score");
   var streakEl = document.getElementById("streak");
   var feedbackEl = document.getElementById("feedback");
+  var feedbackTextEl = document.getElementById("feedback-text");
   var checkBtn = document.getElementById("check-btn");
   var nextBtn = document.getElementById("next-btn");
   var bilanzToggle = document.getElementById("toggle-bilanz");
@@ -457,7 +462,8 @@
     nextBtn.textContent = "Nächster Fall →";
     resetRows();
     feedbackEl.className = "feedback";
-    feedbackEl.textContent = "";
+    feedbackTextEl.textContent = "";
+    explainBtn.hidden = true;
     checkBtn.disabled = false;
     nextBtn.disabled = true;
     state.attemptedCurrent = false;
@@ -529,8 +535,9 @@
     if (correct) {
       var sollText = c.soll.map(function (l) { return accounts[l.a].label + " " + fmt(l.b) + " €"; }).join(" + ");
       var habenText = c.haben.map(function (l) { return accounts[l.a].label; }).join(" + ");
-      feedbackEl.textContent = "Richtig: " + sollText + " an " + habenText;
+      feedbackTextEl.textContent = "Richtig: " + sollText + " an " + habenText;
       feedbackEl.className = "feedback is-correct";
+      explainBtn.hidden = false;
       applyBooking(c);
       renderBilanz();
       if (!state.attemptedCurrent) { state.score++; state.streak++; }
@@ -540,8 +547,9 @@
       checkBtn.disabled = true;
       nextBtn.disabled = false;
     } else {
-      feedbackEl.textContent = "Noch nicht korrekt. Prüfe Konten, Soll/Haben-Seite und Beträge.";
+      feedbackTextEl.textContent = "Noch nicht korrekt. Prüfe Konten, Soll/Haben-Seite und Beträge.";
       feedbackEl.className = "feedback is-wrong";
+      explainBtn.hidden = false;
       state.attemptedCurrent = true;
       state.streak = 0;
       streakEl.textContent = state.streak;
