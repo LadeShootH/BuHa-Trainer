@@ -148,9 +148,17 @@ button{font-family:var(--font-body);cursor:pointer;}
   .case-meta{flex-direction:column;gap:4px;}
   .t-account{flex-direction:column;}
   .t-divider{width:100%;height:2px;}
+  .posting-row{flex-direction:column;align-items:stretch;}
+  .posting-row select, .posting-row input{width:100%;min-width:0;}
   .form-actions{flex-direction:column;}
   .form-actions button{width:100%;}
-  .bilanz-columns{grid-template-columns:1fr;gap:18px;}
+  .bilanz-panel{padding:14px;}
+  .bilanz-header h2{font-size:16px;}
+  .bilanz-columns{grid-template-columns:1fr;gap:14px;}
+  .bilanz-col-label{font-size:11px;padding-bottom:4px;margin-bottom:6px;}
+  .bilanz-row{font-size:12px;padding:2px 0;}
+  .bilanz-total{font-size:13px;margin-top:10px;padding-top:8px;}
+  .balance-check{font-size:11px;}
   .legal-page{padding:28px 16px 48px;}
   .footer-inner{flex-direction:column;align-items:flex-start;}
 }
