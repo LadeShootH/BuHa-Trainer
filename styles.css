@@ -101,6 +101,7 @@ select{text-overflow:ellipsis;}
 select:focus-visible, input:focus-visible, button:focus-visible{outline:2px solid var(--accent-credit);outline-offset:2px;}
 
 .add-row-btn{align-self:flex-start;background:none;border:none;font-size:12px;color:var(--ink-soft);cursor:pointer;padding:2px 0;text-decoration:underline;}
+.is-abschluss .add-row-btn{display:none;}
 
 .form-actions{display:flex;gap:10px;flex-wrap:wrap;}
 button{font-family:var(--font-body);cursor:pointer;}
