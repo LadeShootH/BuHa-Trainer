@@ -1,174 +1,360 @@
-:root{
-  --bg:#EEF0EA;
-  --surface:#FFFFFF;
-  --surface-2:#E4E7DE;
-  --ink:#1F2D2A;
-  --ink-soft:#4B5A54;
-  --muted:#7C877F;
-  --line:#C9CFC2;
-  --accent-debit:#2B4C6F;
-  --accent-debit-bg:#E4EAF0;
-  --accent-credit:#24604F;
-  --accent-credit-bg:#E1EBE6;
-  --error:#8C3B2E;
-  --error-bg:#F3E4DF;
-  --font-display:'Fraunces', serif;
-  --font-body:'IBM Plex Sans', system-ui, sans-serif;
-  --font-mono:'IBM Plex Mono', monospace;
-  --radius:6px;
-}
+(function () {
+  "use strict";
 
-*{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;} *{animation-duration:.001ms !important; transition-duration:.001ms !important;}}
+  // ---- account master data (nach Großhandelskontenrahmen, GKR) ----
+  var accounts = {
+    Kasse: { type: "A", label: "1510 Kasse" },
+    Bank: { type: "A", label: "1310 Bank" },
+    Forderungen: { type: "A", label: "1010 Forderungen a. L+L" },
+    Vorsteuer: { type: "A", label: "1400 Vorsteuer" },
+    Fuhrpark: { type: "A", label: "0340 Fuhrpark" },
+    BGA: { type: "A", label: "0330 Betriebs- u. Geschäftsausstattung" },
+    Warenbestand: { type: "A", label: "3910 Warenbestände" },
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font-family:var(--font-body);
-  line-height:1.6;
-  background-image:repeating-linear-gradient(to bottom, rgba(31,45,42,0.035) 0px, rgba(31,45,42,0.035) 1px, transparent 1px, transparent 34px);
-}
+    Eigenkapital: { type: "P", label: "0610 Eigenkapital" },
+    VgK: { type: "P", label: "0820 Verbindl. ggü. Kreditinstituten" },
+    Verbindlichkeiten: { type: "P", label: "1710 Verbindlichkeiten a. L+L" },
+    Umsatzsteuer: { type: "P", label: "1800 Umsatzsteuer" },
 
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+    Wareneingang: { type: "E", label: "3010 Wareneingang" },
+    Warenbezugskosten: { type: "E", label: "3020 Warenbezugskosten" },
+    RSL: { type: "E", label: "3050 Rücksendungen an Lieferanten" },
+    NLL: { type: "E", label: "3060 Nachlässe von Lieferanten" },
+    LSK: { type: "E", label: "3080 Liefererskonti" },
+    Gehaelter: { type: "E", label: "4020 Gehälter" },
+    Miete: { type: "E", label: "4110 Miete" },
+    Werbekosten: { type: "E", label: "4400 Werbe- u. Reisekosten" },
+    Buerobedarf: { type: "E", label: "4810 Bürobedarf" },
+    Zinsaufwendungen: { type: "E", label: "2100 Zinsaufwendungen" },
 
-a{color:inherit;}
+    Warenverkauf: { type: "Er", label: "8010 Warenverkauf" },
+    RSK: { type: "Er", label: "8050 Rücksendungen von Kunden" },
+    NLK: { type: "Er", label: "8060 Nachlässe an Kunden" },
+    KSK: { type: "Er", label: "8080 Kundenskonti" }
+  };
 
-/* header */
-.site-header{background:var(--ink);color:var(--bg);}
-.header-inner{display:flex;justify-content:space-between;align-items:flex-end;padding:28px 24px 18px;flex-wrap:wrap;gap:12px;}
-.eyebrow{display:block;font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9FB0A8;margin-bottom:4px;}
-.wordmark h1{font-family:var(--font-display);font-weight:600;font-size:34px;margin:0;letter-spacing:-0.01em;}
-.header-nav{display:flex;gap:22px;align-items:center;font-size:14px;}
-.header-nav a{text-decoration:none;color:#D7DED9;border-bottom:1px solid transparent;padding-bottom:2px;}
-.header-nav a:hover, .header-nav a:focus-visible{border-color:#D7DED9;}
-.gh-link{color:#EFEAD9 !important;}
-.ledger-rule{height:6px;background:repeating-linear-gradient(90deg, var(--accent-credit) 0 18px, transparent 18px 26px);opacity:.55;}
+  var openingBalances = {
+    Kasse: 5000, Bank: 20000, Forderungen: 0, Vorsteuer: 0, Fuhrpark: 15000, BGA: 0, Warenbestand: 10000,
+    Eigenkapital: 30000, VgK: 20000, Verbindlichkeiten: 0, Umsatzsteuer: 0,
+    Wareneingang: 0, Warenbezugskosten: 0, RSL: 0, NLL: 0, LSK: 0,
+    Gehaelter: 0, Miete: 0, Werbekosten: 0, Buerobedarf: 0, Zinsaufwendungen: 0,
+    Warenverkauf: 0, RSK: 0, NLK: 0, KSK: 0
+  };
 
-/* intro */
-.intro{padding:34px 24px 8px;}
-.intro-text{max-width:620px;color:var(--ink-soft);font-size:16px;margin:0 0 20px;}
-.stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
-.stat-chip{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 16px;display:flex;flex-direction:column;min-width:110px;}
-.stat-num{font-family:var(--font-mono);font-size:20px;font-weight:500;}
-.stat-label{font-size:12px;color:var(--muted);}
+  var AKTIVA_KEYS = ["Kasse", "Bank", "Forderungen", "Vorsteuer", "Fuhrpark", "BGA", "Warenbestand"];
+  var PASSIVA_KEYS = ["Eigenkapital", "VgK", "Verbindlichkeiten", "Umsatzsteuer"];
 
-/* tool section */
-.tool-section{padding:28px 24px 60px;}
-.tool-controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
-.category-picker{display:flex;gap:8px;flex-wrap:wrap;}
-.cat-btn{font-family:var(--font-body);font-size:14px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);cursor:pointer;}
-.cat-btn:hover{border-color:var(--accent-credit);}
-.cat-btn.is-active{background:var(--ink);color:var(--bg);border-color:var(--ink);}
-.bilanz-toggle{font-size:14px;color:var(--ink-soft);display:flex;gap:8px;align-items:center;cursor:pointer;}
+  // ---- case pool ----
+  // soll / haben are arrays of {a: Kontoschlüssel, b: Betrag} — so ein Fall kann
+  // einfach (1:1) oder zusammengesetzt (mehrere Konten je Seite) sein.
+  var cases = [
+    // -- grundlagen: einfache 1:1-Buchungssätze --
+    { cat: "grundlagen", text: "Der Großhandel kauft Waren für 800 € und bezahlt sofort in bar.",
+      soll: [{ a: "Wareneingang", b: 800 }], haben: [{ a: "Kasse", b: 800 }] },
+    { cat: "grundlagen", text: "Ein Kunde begleicht eine offene Forderung über 1.200 € per Überweisung.",
+      soll: [{ a: "Bank", b: 1200 }], haben: [{ a: "Forderungen", b: 1200 }] },
+    { cat: "grundlagen", text: "Der Großhandel kauft Waren für 3.000 € auf Ziel.",
+      soll: [{ a: "Wareneingang", b: 3000 }], haben: [{ a: "Verbindlichkeiten", b: 3000 }] },
+    { cat: "grundlagen", text: "Die Monatsmiete von 900 € wird per Bank bezahlt.",
+      soll: [{ a: "Miete", b: 900 }], haben: [{ a: "Bank", b: 900 }] },
+    { cat: "grundlagen", text: "Waren werden für 1.500 € gegen Barzahlung verkauft.",
+      soll: [{ a: "Kasse", b: 1500 }], haben: [{ a: "Warenverkauf", b: 1500 }] },
+    { cat: "grundlagen", text: "Die Gehälter in Höhe von 2.000 € werden per Bank überwiesen.",
+      soll: [{ a: "Gehaelter", b: 2000 }], haben: [{ a: "Bank", b: 2000 }] },
+    { cat: "grundlagen", text: "Waren werden für 2.400 € auf Ziel verkauft.",
+      soll: [{ a: "Forderungen", b: 2400 }], haben: [{ a: "Warenverkauf", b: 2400 }] },
+    { cat: "grundlagen", text: "Eine offene Lieferantenrechnung über 1.000 € wird per Bank beglichen.",
+      soll: [{ a: "Verbindlichkeiten", b: 1000 }], haben: [{ a: "Bank", b: 1000 }] },
+    { cat: "grundlagen", text: "Der Großhandel zahlt 2.000 € bar auf das Bankkonto ein.",
+      soll: [{ a: "Bank", b: 2000 }], haben: [{ a: "Kasse", b: 2000 }] },
+    { cat: "grundlagen", text: "Für eine Wareneinlieferung fallen Frachtkosten (Warenbezugskosten) von 150 € an, die bar bezahlt werden.",
+      soll: [{ a: "Warenbezugskosten", b: 150 }], haben: [{ a: "Kasse", b: 150 }] },
 
-.tool-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:24px;align-items:start;}
-@media (max-width:820px){.tool-grid{grid-template-columns:1fr;}}
+    // -- mit umsatzsteuer: zusammengesetzte Buchungssätze mit Vorsteuer/USt --
+    { cat: "ust", text: "Wareneinkauf auf Ziel, Netto 1.000 €, zzgl. 19 % Umsatzsteuer (190 €).",
+      soll: [{ a: "Wareneingang", b: 1000 }, { a: "Vorsteuer", b: 190 }], haben: [{ a: "Verbindlichkeiten", b: 1190 }] },
+    { cat: "ust", text: "Warenverkauf auf Ziel, Netto 2.000 €, zzgl. 19 % Umsatzsteuer (380 €).",
+      soll: [{ a: "Forderungen", b: 2380 }], haben: [{ a: "Warenverkauf", b: 2000 }, { a: "Umsatzsteuer", b: 380 }] },
+    { cat: "ust", text: "Kauf von Bürobedarf gegen bar, Netto 100 €, zzgl. 19 % Umsatzsteuer (19 €).",
+      soll: [{ a: "Buerobedarf", b: 100 }, { a: "Vorsteuer", b: 19 }], haben: [{ a: "Kasse", b: 119 }] },
+    { cat: "ust", text: "Barverkauf von Waren, Netto 500 €, zzgl. 19 % Umsatzsteuer (95 €).",
+      soll: [{ a: "Kasse", b: 595 }], haben: [{ a: "Warenverkauf", b: 500 }, { a: "Umsatzsteuer", b: 95 }] },
+    { cat: "ust", text: "Ein Firmenfahrzeug wird auf Ziel gekauft, Netto 10.000 €, zzgl. 19 % Umsatzsteuer (1.900 €).",
+      soll: [{ a: "Fuhrpark", b: 10000 }, { a: "Vorsteuer", b: 1900 }], haben: [{ a: "Verbindlichkeiten", b: 11900 }] },
+    { cat: "ust", text: "Werbekosten werden per Bank bezahlt, Netto 300 €, zzgl. 19 % Umsatzsteuer (57 €).",
+      soll: [{ a: "Werbekosten", b: 300 }, { a: "Vorsteuer", b: 57 }], haben: [{ a: "Bank", b: 357 }] },
 
-.case-panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;}
-.case-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:12px;font-family:var(--font-mono);}
-.case-card{background:var(--surface-2);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;min-height:64px;display:flex;align-items:center;}
-#case-text{margin:0;font-size:16px;}
+    // -- schwer: Rücksendungen, Nachlässe, Skonto, zusammengesetzte Fälle mit mehreren Konten --
+    { cat: "schwer", text: "Der Großhandel schickt mangelhafte Ware im Wert von netto 300 € (zzgl. 19 % USt, 57 €) an den Lieferanten zurück; ursprünglich auf Ziel gekauft.",
+      soll: [{ a: "Verbindlichkeiten", b: 357 }], haben: [{ a: "RSL", b: 300 }, { a: "Vorsteuer", b: 57 }] },
+    { cat: "schwer", text: "Wegen einer Mängelrüge gewährt ein Lieferant nachträglich einen Nachlass von netto 200 € (zzgl. 19 % USt, 38 €) auf eine offene Rechnung.",
+      soll: [{ a: "Verbindlichkeiten", b: 238 }], haben: [{ a: "NLL", b: 200 }, { a: "Vorsteuer", b: 38 }] },
+    { cat: "schwer", text: "Ein Kunde schickt Ware im Wert von netto 400 € (zzgl. 19 % USt, 76 €) zurück; ursprünglich auf Ziel verkauft.",
+      soll: [{ a: "RSK", b: 400 }, { a: "Umsatzsteuer", b: 76 }], haben: [{ a: "Forderungen", b: 476 }] },
+    { cat: "schwer", text: "Wegen einer Mängelrüge gewährt der Großhandel einem Kunden nachträglich einen Nachlass von netto 200 € (zzgl. 19 % USt, 38 €).",
+      soll: [{ a: "NLK", b: 200 }, { a: "Umsatzsteuer", b: 38 }], haben: [{ a: "Forderungen", b: 238 }] },
+    { cat: "schwer", text: "Eine Verbindlichkeit über 1.000 € wird innerhalb der Skontofrist beglichen: 2 % Skonto (20 €) werden abgezogen, der Restbetrag von 980 € per Bank überwiesen.",
+      soll: [{ a: "Verbindlichkeiten", b: 1000 }], haben: [{ a: "Bank", b: 980 }, { a: "LSK", b: 20 }] },
+    { cat: "schwer", text: "Ein Kunde begleicht eine Forderung von 2.000 € abzüglich 3 % Kundenskonto (60 €); der Restbetrag von 1.940 € geht per Bank ein.",
+      soll: [{ a: "Bank", b: 1940 }, { a: "KSK", b: 60 }], haben: [{ a: "Forderungen", b: 2000 }] },
+    { cat: "schwer", text: "Neue Büroausstattung wird auf Ziel gekauft, Netto 1.500 €, zzgl. 19 % Umsatzsteuer (285 €).",
+      soll: [{ a: "BGA", b: 1500 }, { a: "Vorsteuer", b: 285 }], haben: [{ a: "Verbindlichkeiten", b: 1785 }] },
+    { cat: "schwer", text: "Für ein Darlehen wird per Bank eine Rate von 1.000 € gezahlt: 800 € Tilgung und 200 € Zinsen.",
+      soll: [{ a: "VgK", b: 800 }, { a: "Zinsaufwendungen", b: 200 }], haben: [{ a: "Bank", b: 1000 }] }
+  ];
 
-/* T-account form */
-.t-account{display:flex;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
-.t-side{flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
-.t-side[data-side="soll"]{background:var(--accent-debit-bg);}
-.t-side[data-side="haben"]{background:var(--accent-credit-bg);}
-.t-side-label{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-weight:500;}
-.t-side[data-side="soll"] .t-side-label{color:var(--accent-debit);}
-.t-side[data-side="haben"] .t-side-label{color:var(--accent-credit);}
-.t-divider{width:2px;background:var(--ink);opacity:.7;}
+  // ---- state ----
+  var STORAGE_KEY = "buhasim_progress_v1";
+  var state = {
+    category: "grundlagen",
+    pool: [],
+    currentIndex: 0,
+    balances: Object.assign({}, openingBalances),
+    score: 0,
+    streak: 0,
+    attemptedCurrent: false
+  };
 
-.posting-row{display:flex;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
-.posting-row select{flex:1.3;min-width:140px;}
-.posting-row input{flex:1;min-width:90px;font-family:var(--font-mono);}
+  function loadProgress() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var saved = JSON.parse(raw);
+        state.score = saved.score || 0;
+        state.streak = saved.streak || 0;
+      }
+    } catch (e) { /* ignore */ }
+  }
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ score: state.score, streak: state.streak }));
+    } catch (e) { /* ignore */ }
+  }
 
-select, input[type="number"]{
-  font-family:var(--font-body);
-  font-size:14px;
-  padding:8px 10px;
-  min-height:40px;
-  border-radius:4px;
-  border:1px solid var(--line);
-  background:var(--surface);
-  color:var(--ink);
-  max-width:100%;
-}
-select{text-overflow:ellipsis;}
-.btn-primary, .btn-secondary, .cat-btn{min-height:40px;}
-select:focus-visible, input:focus-visible, button:focus-visible{outline:2px solid var(--accent-credit);outline-offset:2px;}
+  function poolForCategory(cat) {
+    var list = cat === "gemischt" ? cases.slice() : cases.filter(function (c) { return c.cat === cat; });
+    for (var i = list.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+    }
+    return list;
+  }
 
-.add-row-btn{align-self:flex-start;background:none;border:none;font-size:12px;color:var(--ink-soft);cursor:pointer;padding:2px 0;text-decoration:underline;}
+  function fmt(n) {
+    return Math.round(n).toLocaleString("de-DE");
+  }
 
-.form-actions{display:flex;gap:10px;flex-wrap:wrap;}
-button{font-family:var(--font-body);cursor:pointer;}
-.btn-primary{background:var(--ink);color:var(--bg);border:1px solid var(--ink);padding:10px 18px;border-radius:var(--radius);font-size:14px;font-weight:500;}
-.btn-primary:hover{background:var(--accent-credit);border-color:var(--accent-credit);}
-.btn-secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:10px 18px;border-radius:var(--radius);font-size:14px;}
-.btn-secondary:disabled{opacity:.4;cursor:not-allowed;}
+  // ---- DOM refs ----
+  var sollRowsEl = document.getElementById("soll-rows");
+  var habenRowsEl = document.getElementById("haben-rows");
+  var caseTextEl = document.getElementById("case-text");
+  var caseNumEl = document.getElementById("case-num");
+  var caseTotalEl = document.getElementById("case-total");
+  var scoreEl = document.getElementById("score");
+  var streakEl = document.getElementById("streak");
+  var feedbackEl = document.getElementById("feedback");
+  var checkBtn = document.getElementById("check-btn");
+  var nextBtn = document.getElementById("next-btn");
+  var bilanzToggle = document.getElementById("toggle-bilanz");
+  var bilanzPanel = document.getElementById("bilanz-panel");
+  var resetBilanzBtn = document.getElementById("reset-bilanz-btn");
+  var statCountEl = document.getElementById("stat-count");
 
-.feedback{margin-top:14px;font-size:14px;padding:10px 14px;border-radius:var(--radius);display:none;}
-.feedback.is-correct{display:block;background:var(--accent-credit-bg);color:var(--accent-credit);}
-.feedback.is-wrong{display:block;background:var(--error-bg);color:var(--error);}
+  statCountEl.textContent = cases.length;
 
-/* bilanz panel */
-.bilanz-panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;}
-.bilanz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.bilanz-header h2{font-family:var(--font-display);font-weight:600;font-size:19px;margin:0;}
-.reset-link{background:none;border:none;font-size:12px;color:var(--muted);text-decoration:underline;padding:0;}
-.bilanz-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.bilanz-col-label{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px;margin:0 0 8px;}
-.bilanz-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--ink-soft);}
-.bilanz-row span:last-child{font-family:var(--font-mono);color:var(--ink);}
-.bilanz-total{display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:2px solid var(--ink);font-family:var(--font-mono);font-size:14px;font-weight:500;}
-.balance-check{font-size:12px;margin:10px 0 0;color:var(--muted);}
-.balance-check.ok{color:var(--accent-credit);}
-.balance-check.off{color:var(--error);}
-#bilanz-panel.is-hidden{display:none;}
+  function accountOptionsHtml(selected) {
+    var groups = { A: "Aktivkonten", P: "Passivkonten", E: "Aufwandskonten", Er: "Ertragskonten" };
+    var html = '<option value="">– Konto wählen –</option>';
+    Object.keys(groups).forEach(function (g) {
+      html += '<optgroup label="' + groups[g] + '">';
+      Object.keys(accounts).forEach(function (k) {
+        if (accounts[k].type === g) {
+          html += '<option value="' + k + '"' + (k === selected ? " selected" : "") + ">" + accounts[k].label + "</option>";
+        }
+      });
+      html += "</optgroup>";
+    });
+    return html;
+  }
 
-/* about + footer */
-.about{padding:10px 24px 50px;max-width:720px;}
-.about h2{font-family:var(--font-display);font-weight:600;}
-.about p{color:var(--ink-soft);}
+  function makeRow() {
+    var row = document.createElement("div");
+    row.className = "posting-row";
+    row.innerHTML =
+      '<select class="acct-select">' + accountOptionsHtml() + "</select>" +
+      '<input type="number" class="amt-input" placeholder="Betrag €" step="1" />';
+    return row;
+  }
 
-/* mobile */
-@media (max-width:600px){
-  .wrap{padding:0 16px;}
-  .header-inner{padding:20px 16px 14px;align-items:flex-start;flex-direction:column;}
-  .wordmark h1{font-size:26px;}
-  .header-nav{gap:16px;font-size:13px;}
-  .intro{padding:24px 16px 4px;}
-  .intro-text{font-size:15px;}
-  .stat-chip{min-width:0;flex:1;padding:8px 12px;}
-  .tool-section{padding:20px 16px 48px;}
-  .tool-controls{flex-direction:column;align-items:flex-start;gap:12px;}
-  .case-panel, .bilanz-panel{padding:16px;}
-  .case-meta{flex-direction:column;gap:4px;}
-  .t-account{flex-direction:column;}
-  .t-divider{width:100%;height:2px;}
-  .posting-row{flex-direction:column;align-items:stretch;}
-  .posting-row select, .posting-row input{width:100%;min-width:0;}
-  .form-actions{flex-direction:column;}
-  .form-actions button{width:100%;}
-  .bilanz-panel{padding:14px;}
-  .bilanz-header h2{font-size:16px;}
-  .bilanz-columns{grid-template-columns:1fr;gap:14px;}
-  .bilanz-col-label{font-size:11px;padding-bottom:4px;margin-bottom:6px;}
-  .bilanz-row{font-size:12px;padding:2px 0;}
-  .bilanz-total{font-size:13px;margin-top:10px;padding-top:8px;}
-  .balance-check{font-size:11px;}
-  .legal-page{padding:28px 16px 48px;}
-  .footer-inner{flex-direction:column;align-items:flex-start;}
-}
+  function addRow(side) {
+    var container = side === "soll" ? sollRowsEl : habenRowsEl;
+    if (container.children.length >= 2) return;
+    container.appendChild(makeRow());
+  }
 
-/* legal page (Impressum) */
-.legal-page{padding:40px 24px 60px;max-width:680px;}
-.legal-title{font-family:var(--font-display);font-weight:600;font-size:30px;margin:0 0 24px;}
-.legal-section{margin-bottom:26px;}
-.legal-section h2{font-family:var(--font-body);font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 8px;}
-.legal-section p{margin:0;color:var(--ink);}
-.site-footer{border-top:1px solid var(--line);padding:20px 0 40px;}
-.footer-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--muted);}
-.footer-inner a{text-decoration:underline;}
+  function resetRows() {
+    sollRowsEl.innerHTML = "";
+    habenRowsEl.innerHTML = "";
+    sollRowsEl.appendChild(makeRow());
+    habenRowsEl.appendChild(makeRow());
+  }
+
+  document.querySelectorAll(".add-row-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { addRow(btn.dataset.side); });
+  });
+
+  function readRows(container) {
+    var out = [];
+    container.querySelectorAll(".posting-row").forEach(function (row) {
+      var acct = row.querySelector(".acct-select").value;
+      var amt = parseFloat(row.querySelector(".amt-input").value);
+      if (acct && !isNaN(amt) && amt > 0) out.push({ a: acct, b: amt });
+    });
+    return out;
+  }
+
+  function normalizeLines(lines) {
+    return lines
+      .map(function (l) { return l.a + ":" + Math.round(l.b); })
+      .sort()
+      .join("|");
+  }
+
+  function loadCase() {
+    if (state.currentIndex >= state.pool.length) {
+      state.pool = poolForCategory(state.category);
+      state.currentIndex = 0;
+    }
+    var c = state.pool[state.currentIndex];
+    caseTextEl.textContent = c.text;
+    caseNumEl.textContent = state.currentIndex + 1;
+    caseTotalEl.textContent = state.pool.length;
+    resetRows();
+    feedbackEl.className = "feedback";
+    feedbackEl.textContent = "";
+    checkBtn.disabled = false;
+    nextBtn.disabled = true;
+    state.attemptedCurrent = false;
+  }
+
+  function applyBooking(c) {
+    c.soll.forEach(function (l) {
+      var t = accounts[l.a].type;
+      state.balances[l.a] += (t === "A" || t === "E") ? l.b : -l.b;
+    });
+    c.haben.forEach(function (l) {
+      var t = accounts[l.a].type;
+      state.balances[l.a] += (t === "A" || t === "E") ? -l.b : l.b;
+    });
+  }
+
+  function computeGewinn() {
+    var gewinn = 0;
+    Object.keys(accounts).forEach(function (k) {
+      if (accounts[k].type === "Er") gewinn += state.balances[k];
+      if (accounts[k].type === "E") gewinn -= state.balances[k];
+    });
+    return gewinn;
+  }
+
+  function renderBilanz() {
+    var gewinn = computeGewinn();
+
+    var aktivaEl = document.getElementById("aktiva-rows");
+    aktivaEl.innerHTML = "";
+    var aktivaTotal = 0;
+    AKTIVA_KEYS.forEach(function (k) {
+      aktivaTotal += state.balances[k];
+      aktivaEl.innerHTML += '<div class="bilanz-row"><span>' + accounts[k].label + "</span><span>" + fmt(state.balances[k]) + "</span></div>";
+    });
+
+    var passivaEl = document.getElementById("passiva-rows");
+    passivaEl.innerHTML = "";
+    var passivaTotal = 0;
+    PASSIVA_KEYS.forEach(function (k) {
+      var val = state.balances[k];
+      var label = accounts[k].label;
+      if (k === "Eigenkapital") { val += gewinn; label = accounts[k].label + " (inkl. Gewinn)"; }
+      passivaTotal += val;
+      passivaEl.innerHTML += '<div class="bilanz-row"><span>' + label + "</span><span>" + fmt(val) + "</span></div>";
+    });
+
+    document.getElementById("aktiva-total").textContent = "Summe " + fmt(aktivaTotal);
+    document.getElementById("passiva-total").textContent = "Summe " + fmt(passivaTotal);
+
+    var checkEl = document.getElementById("balance-check");
+    if (Math.round(aktivaTotal) === Math.round(passivaTotal)) {
+      checkEl.textContent = "Bilanz ausgeglichen";
+      checkEl.className = "balance-check ok";
+    } else {
+      checkEl.textContent = "Bilanz weicht ab um " + fmt(Math.abs(aktivaTotal - passivaTotal)) + " €";
+      checkEl.className = "balance-check off";
+    }
+  }
+
+  function handleCheck(e) {
+    e.preventDefault();
+    var c = state.pool[state.currentIndex];
+    var sollActual = readRows(sollRowsEl);
+    var habenActual = readRows(habenRowsEl);
+    var correct = normalizeLines(sollActual) === normalizeLines(c.soll) &&
+                  normalizeLines(habenActual) === normalizeLines(c.haben);
+
+    if (correct) {
+      var sollText = c.soll.map(function (l) { return accounts[l.a].label + " " + fmt(l.b) + " €"; }).join(" + ");
+      var habenText = c.haben.map(function (l) { return accounts[l.a].label; }).join(" + ");
+      feedbackEl.textContent = "Richtig: " + sollText + " an " + habenText;
+      feedbackEl.className = "feedback is-correct";
+      applyBooking(c);
+      renderBilanz();
+      if (!state.attemptedCurrent) { state.score++; state.streak++; }
+      scoreEl.textContent = state.score;
+      streakEl.textContent = state.streak;
+      saveProgress();
+      checkBtn.disabled = true;
+      nextBtn.disabled = false;
+    } else {
+      feedbackEl.textContent = "Noch nicht korrekt. Prüfe Konten, Soll/Haben-Seite und Beträge.";
+      feedbackEl.className = "feedback is-wrong";
+      state.attemptedCurrent = true;
+      state.streak = 0;
+      streakEl.textContent = state.streak;
+      saveProgress();
+    }
+  }
+
+  document.getElementById("booking-form").addEventListener("submit", handleCheck);
+
+  nextBtn.addEventListener("click", function () {
+    state.currentIndex++;
+    loadCase();
+  });
+
+  document.querySelectorAll(".cat-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".cat-btn").forEach(function (b) { b.classList.remove("is-active"); });
+      btn.classList.add("is-active");
+      state.category = btn.dataset.cat;
+      state.pool = poolForCategory(state.category);
+      state.currentIndex = 0;
+      loadCase();
+    });
+  });
+
+  bilanzToggle.addEventListener("change", function () {
+    bilanzPanel.classList.toggle("is-hidden", !bilanzToggle.checked);
+  });
+
+  resetBilanzBtn.addEventListener("click", function () {
+    state.balances = Object.assign({}, openingBalances);
+    renderBilanz();
+  });
+
+  // ---- init ----
+  loadProgress();
+  scoreEl.textContent = state.score;
+  streakEl.textContent = state.streak;
+  state.pool = poolForCategory(state.category);
+  renderBilanz();
+  loadCase();
+})();
