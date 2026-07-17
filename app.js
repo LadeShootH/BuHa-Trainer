@@ -204,7 +204,8 @@
     balances: Object.assign({}, openingBalances),
     score: 0,
     streak: 0,
-    attemptedCurrent: false
+    attemptedCurrent: false,
+    categoryComplete: false
   };
 
   function loadProgress() {
@@ -316,10 +317,18 @@
       .join("|");
   }
 
+  var CATEGORY_LABELS = {
+    grundlagen: "Grundlagen",
+    ust: "Mit Umsatzsteuer",
+    schwer: "Schwer",
+    realistisch: "Realistisch",
+    gemischt: "Gemischt"
+  };
+
   function loadCase() {
     if (state.currentIndex >= state.pool.length) {
-      state.pool = poolForCategory(state.category);
-      state.currentIndex = 0;
+      showCategoryComplete();
+      return;
     }
     var c = state.pool[state.currentIndex];
     caseTextEl.textContent = c.text;
@@ -332,6 +341,22 @@
     checkBtn.disabled = false;
     nextBtn.disabled = true;
     state.attemptedCurrent = false;
+    state.categoryComplete = false;
+  }
+
+  function showCategoryComplete() {
+    var label = CATEGORY_LABELS[state.category] || state.category;
+    caseTextEl.textContent = "";
+    document.getElementById("case-heading").textContent = "Kategorie geschafft";
+    sollRowsEl.innerHTML = "";
+    habenRowsEl.innerHTML = "";
+    checkBtn.disabled = true;
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Neue Runde starten";
+    explainBtn.hidden = true;
+    feedbackEl.className = "feedback is-correct";
+    feedbackTextEl.textContent = "🎉 Herzlichen Glückwunsch — du hast alle Fälle in „" + label + "“ einmal durchgespielt! Probier dich doch mal an den anderen Bereichen.";
+    state.categoryComplete = true;
   }
 
   function applyBooking(c) {
@@ -486,7 +511,16 @@
   });
 
   nextBtn.addEventListener("click", function () {
-    if (state.category === "abschluss") { advanceAbschluss(); } else { state.currentIndex++; loadCase(); }
+    if (state.category === "abschluss") {
+      advanceAbschluss();
+    } else if (state.categoryComplete) {
+      state.pool = poolForCategory(state.category);
+      state.currentIndex = 0;
+      loadCase();
+    } else {
+      state.currentIndex++;
+      loadCase();
+    }
   });
 
   var bilanzToggleWrapperEl = document.querySelector(".bilanz-toggle");
