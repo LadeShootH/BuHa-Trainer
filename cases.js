@@ -40,17 +40,21 @@ var accounts = {
   Warenbezugskosten: { type: "E", label: "3020 Warenbezugskosten" },
   RSL: { type: "E", label: "3050 Rücksendungen an Lieferanten" },
   NLL: { type: "E", label: "3060 Nachlässe von Lieferanten" },
+  LB: { type: "E", label: "3070 Liefererboni" },
   LSK: { type: "E", label: "3080 Liefererskonti" },
   Gehaelter: { type: "E", label: "4020 Gehälter" },
   Miete: { type: "E", label: "4110 Miete" },
   Werbekosten: { type: "E", label: "4400 Werbe- u. Reisekosten" },
+  AFR: { type: "E", label: "4620 Ausgangsfrachten" },
   Buerobedarf: { type: "E", label: "4810 Bürobedarf" },
   KGV: { type: "E", label: "4860 Kosten des Geldverkehrs" },
   Zinsaufwendungen: { type: "E", label: "2100 Zinsaufwendungen" },
+  BFA: { type: "E", label: "2020 Betriebsfremde Aufwendungen" },
 
   Warenverkauf: { type: "Er", label: "8010 Warenverkauf" },
   RSK: { type: "Er", label: "8050 Rücksendungen von Kunden" },
   NLK: { type: "Er", label: "8060 Nachlässe an Kunden" },
+  KB: { type: "Er", label: "8070 Kundenboni" },
   KSK: { type: "Er", label: "8080 Kundenskonti" },
   SonstigeErtraege: { type: "Er", label: "2460 Sonstige Erträge" },
 
@@ -62,9 +66,9 @@ var accounts = {
 var openingBalances = {
   Kasse: 5000, Bank: 20000, Forderungen: 0, Vorsteuer: 0, Fuhrpark: 15000, BGA: 0, Warenbestand: 10000,
   Eigenkapital: 30000, VgK: 20000, Verbindlichkeiten: 0, Umsatzsteuer: 0, SonstVerbSt: 0, SonstVerbSV: 0,
-  Wareneingang: 0, Warenbezugskosten: 0, RSL: 0, NLL: 0, LSK: 0,
-  Gehaelter: 0, Miete: 0, Werbekosten: 0, Buerobedarf: 0, KGV: 0, Zinsaufwendungen: 0,
-  Warenverkauf: 0, RSK: 0, NLK: 0, KSK: 0, SonstigeErtraege: 0
+  Wareneingang: 0, Warenbezugskosten: 0, RSL: 0, NLL: 0, LB: 0, LSK: 0,
+  Gehaelter: 0, Miete: 0, Werbekosten: 0, AFR: 0, Buerobedarf: 0, KGV: 0, Zinsaufwendungen: 0, BFA: 0,
+  Warenverkauf: 0, RSK: 0, NLK: 0, KB: 0, KSK: 0, SonstigeErtraege: 0
 };
 
 var AKTIVA_KEYS = ["Kasse", "Bank", "Forderungen", "Vorsteuer", "Fuhrpark", "BGA", "Warenbestand"];
@@ -95,6 +99,26 @@ var cases = [
     soll: [{ a: "Bank", b: 2000 }], haben: [{ a: "Kasse", b: 2000 }] },
   { cat: "grundlagen", text: "Für eine Wareneinlieferung fallen Frachtkosten (Warenbezugskosten) von 150 € an, die bar bezahlt werden.",
     soll: [{ a: "Warenbezugskosten", b: 150 }], haben: [{ a: "Kasse", b: 150 }] },
+  { cat: "grundlagen", text: "Ein gebrauchter Firmenwagen wird für 4.000 € bar bezahlt.",
+    soll: [{ a: "Fuhrpark", b: 4000 }], haben: [{ a: "Kasse", b: 4000 }] },
+  { cat: "grundlagen", text: "Neue Büroausstattung wird für 800 € bar gekauft.",
+    soll: [{ a: "BGA", b: 800 }], haben: [{ a: "Kasse", b: 800 }] },
+  { cat: "grundlagen", text: "Der Großhandel nimmt ein Bankdarlehen über 10.000 € auf; der Betrag wird dem Bankkonto gutgeschrieben.",
+    soll: [{ a: "Bank", b: 10000 }], haben: [{ a: "VgK", b: 10000 }] },
+  { cat: "grundlagen", text: "Der Inhaber zahlt 5.000 € aus privaten Mitteln auf das Geschäftskonto ein.",
+    soll: [{ a: "Bank", b: 5000 }], haben: [{ a: "Eigenkapital", b: 5000 }] },
+  { cat: "grundlagen", text: "Werbekosten in Höhe von 300 € werden bar bezahlt.",
+    soll: [{ a: "Werbekosten", b: 300 }], haben: [{ a: "Kasse", b: 300 }] },
+  { cat: "grundlagen", text: "Bürobedarf im Wert von 120 € wird bar gekauft.",
+    soll: [{ a: "Buerobedarf", b: 120 }], haben: [{ a: "Kasse", b: 120 }] },
+  { cat: "grundlagen", text: "Die vierteljährlichen Kontoführungsgebühren von 25 € werden vom Bankkonto abgebucht.",
+    soll: [{ a: "KGV", b: 25 }], haben: [{ a: "Bank", b: 25 }] },
+  { cat: "grundlagen", text: "Für ein Darlehen werden 150 € Zinsen per Bank gezahlt.",
+    soll: [{ a: "Zinsaufwendungen", b: 150 }], haben: [{ a: "Bank", b: 150 }] },
+  { cat: "grundlagen", text: "Der Großhandel kauft Waren für 950 € und bezahlt per Überweisung.",
+    soll: [{ a: "Wareneingang", b: 950 }], haben: [{ a: "Bank", b: 950 }] },
+  { cat: "grundlagen", text: "Ein Kunde zahlt eine offene Forderung von 700 € bar in die Kasse ein.",
+    soll: [{ a: "Kasse", b: 700 }], haben: [{ a: "Forderungen", b: 700 }] },
 
   // -- mit umsatzsteuer: zusammengesetzte Buchungssätze mit Vorsteuer/USt --
   { cat: "ust", text: "Wareneinkauf auf Ziel, Netto 1.000 €, zzgl. 19 % Umsatzsteuer (190 €).",
@@ -109,6 +133,24 @@ var cases = [
     soll: [{ a: "Fuhrpark", b: 10000 }, { a: "Vorsteuer", b: 1900 }], haben: [{ a: "Verbindlichkeiten", b: 11900 }] },
   { cat: "ust", text: "Werbekosten werden per Bank bezahlt, Netto 300 €, zzgl. 19 % Umsatzsteuer (57 €).",
     soll: [{ a: "Werbekosten", b: 300 }, { a: "Vorsteuer", b: 57 }], haben: [{ a: "Bank", b: 357 }] },
+  { cat: "ust", text: "Wareneinkauf gegen bar, Netto 400 €, zzgl. 19 % Umsatzsteuer (76 €).",
+    soll: [{ a: "Wareneingang", b: 400 }, { a: "Vorsteuer", b: 76 }], haben: [{ a: "Kasse", b: 476 }] },
+  { cat: "ust", text: "Ein Kunde begleicht eine Rechnung sofort per Überweisung, Netto 1.500 €, zzgl. 19 % Umsatzsteuer (285 €).",
+    soll: [{ a: "Bank", b: 1785 }], haben: [{ a: "Warenverkauf", b: 1500 }, { a: "Umsatzsteuer", b: 285 }] },
+  { cat: "ust", text: "Wareneinkauf per Überweisung (nicht auf Ziel), Netto 1.600 €, zzgl. 19 % Umsatzsteuer (304 €).",
+    soll: [{ a: "Wareneingang", b: 1600 }, { a: "Vorsteuer", b: 304 }], haben: [{ a: "Bank", b: 1904 }] },
+  { cat: "ust", text: "Für eine Wareneinlieferung fallen Frachtkosten von Netto 200 €, zzgl. 19 % Umsatzsteuer (38 €) an, die bar bezahlt werden.",
+    soll: [{ a: "Warenbezugskosten", b: 200 }, { a: "Vorsteuer", b: 38 }], haben: [{ a: "Kasse", b: 238 }] },
+  { cat: "ust", text: "Neue Büroausstattung wird per Überweisung gekauft, Netto 1.800 €, zzgl. 19 % Umsatzsteuer (342 €).",
+    soll: [{ a: "BGA", b: 1800 }, { a: "Vorsteuer", b: 342 }], haben: [{ a: "Bank", b: 2142 }] },
+  { cat: "ust", text: "Bürobedarf wird per Überweisung bezahlt, Netto 900 €, zzgl. 19 % Umsatzsteuer (171 €).",
+    soll: [{ a: "Buerobedarf", b: 900 }, { a: "Vorsteuer", b: 171 }], haben: [{ a: "Bank", b: 1071 }] },
+  { cat: "ust", text: "Die Miete für die Lagerhalle wird per Bank bezahlt, Netto 700 €, zzgl. 19 % Umsatzsteuer (133 €) — der Vermieter hat zur Umsatzsteuerpflicht optiert.",
+    soll: [{ a: "Miete", b: 700 }, { a: "Vorsteuer", b: 133 }], haben: [{ a: "Bank", b: 833 }] },
+  { cat: "ust", text: "Warenverkauf auf Ziel, Netto 3.500 €, zzgl. 19 % Umsatzsteuer (665 €).",
+    soll: [{ a: "Forderungen", b: 4165 }], haben: [{ a: "Warenverkauf", b: 3500 }, { a: "Umsatzsteuer", b: 665 }] },
+  { cat: "ust", text: "Wareneinkauf auf Ziel, Netto 600 €, zzgl. 19 % Umsatzsteuer (114 €).",
+    soll: [{ a: "Wareneingang", b: 600 }, { a: "Vorsteuer", b: 114 }], haben: [{ a: "Verbindlichkeiten", b: 714 }] },
 
   // -- schwer: Rücksendungen, Nachlässe, Skonto, zusammengesetzte Fälle mit mehreren Konten --
   { cat: "schwer", text: "Der Großhandel schickt mangelhafte Ware im Wert von netto 300 € (zzgl. 19 % USt, 57 €) an den Lieferanten zurück; ursprünglich auf Ziel gekauft.",
@@ -131,6 +173,16 @@ var cases = [
     soll: [{ a: "Verbindlichkeiten", b: 2500 }], haben: [{ a: "Bank", b: 2425 }, { a: "LSK", b: 75 }] },
   { cat: "schwer", text: "Ein Kunde begleicht eine Forderung von 1.500 € abzüglich 2 % Kundenskonto (30 €); der Restbetrag von 1.470 € geht per Bank ein.",
     soll: [{ a: "Bank", b: 1470 }, { a: "KSK", b: 30 }], haben: [{ a: "Forderungen", b: 1500 }] },
+  { cat: "schwer", text: "Ein Lieferant gewährt am Jahresende einen nachträglichen Bonus von netto 500 € (zzgl. 19 % Vorsteuerkorrektur von 95 €) auf eine offene Verbindlichkeit.",
+    soll: [{ a: "Verbindlichkeiten", b: 595 }], haben: [{ a: "LB", b: 500 }, { a: "Vorsteuer", b: 95 }] },
+  { cat: "schwer", text: "Der Großhandel gewährt einem Kunden am Jahresende einen nachträglichen Bonus von netto 400 € (zzgl. 19 % Umsatzsteuerkorrektur von 76 €) auf eine offene Forderung.",
+    soll: [{ a: "KB", b: 400 }, { a: "Umsatzsteuer", b: 76 }], haben: [{ a: "Forderungen", b: 476 }] },
+  { cat: "schwer", text: "Ein Firmenfahrzeug mit einem Buchwert von 8.000 € wird für 6.000 € per Bank verkauft (Verkauf unter Buchwert).",
+    soll: [{ a: "Bank", b: 6000 }, { a: "BFA", b: 2000 }], haben: [{ a: "Fuhrpark", b: 8000 }] },
+  { cat: "schwer", text: "Alte Büroausstattung mit einem Buchwert von 1.000 € wird für 1.300 € per Bank verkauft (Verkauf über Buchwert).",
+    soll: [{ a: "Bank", b: 1300 }], haben: [{ a: "BGA", b: 1000 }, { a: "SonstigeErtraege", b: 300 }] },
+  { cat: "schwer", text: "Für die Auslieferung von Waren an einen Kunden fallen Ausgangsfrachten von netto 800 €, zzgl. 19 % Umsatzsteuer (152 €) an, die bar bezahlt werden.",
+    soll: [{ a: "AFR", b: 800 }, { a: "Vorsteuer", b: 152 }], haben: [{ a: "Kasse", b: 952 }] },
 
   // -- realistisch: Fälle mit Kontext, wie sie in echten Belegen vorkommen (mit Angaben, die selbst berechnet werden müssen) --
   { cat: "realistisch", text: "Eingangsrechnung eines Lieferanten (Rechnungs-Nr. 24-3391) über Waren im Wert von netto 2.400 €, zuzüglich der gesetzlichen Umsatzsteuer von 19 %. Zahlungsziel: 30 Tage.",
@@ -148,7 +200,21 @@ var cases = [
   { cat: "realistisch", text: "Eine Verbindlichkeit über 3.570 € (brutto, ursprünglich netto 3.000 € zzgl. 19 % Umsatzsteuer) wird innerhalb der Skontofrist beglichen. Der Lieferant gewährt Skonto in Höhe von netto 100 € zzgl. anteiliger Vorsteuerkorrektur von 19 €; der Restbetrag von 3.451 € wird per Bank überwiesen.",
     soll: [{ a: "Verbindlichkeiten", b: 3570 }], haben: [{ a: "Bank", b: 3451 }, { a: "LSK", b: 100 }, { a: "Vorsteuer", b: 19 }] },
   { cat: "realistisch", text: "Ein Kunde begleicht eine Forderung über 4.760 € (brutto, ursprünglich netto 4.000 € zzgl. 19 % Umsatzsteuer). Es wird ein Kundenskonto von netto 200 € zzgl. anteiliger Umsatzsteuerkorrektur von 38 € gewährt; der Restbetrag von 4.522 € geht per Bank ein.",
-    soll: [{ a: "Bank", b: 4522 }, { a: "KSK", b: 200 }, { a: "Umsatzsteuer", b: 38 }], haben: [{ a: "Forderungen", b: 4760 }] }
+    soll: [{ a: "Bank", b: 4522 }, { a: "KSK", b: 200 }, { a: "Umsatzsteuer", b: 38 }], haben: [{ a: "Forderungen", b: 4760 }] },
+  { cat: "realistisch", text: "Der Großhandel bestellt bei zwei Lieferanten: bei Lieferant A für netto 1.200 €, bei Lieferant B für netto 800 €. Nur die Rechnung von Lieferant A (netto 1.200 €, zzgl. 19 % Umsatzsteuer) trifft heute ein und wird auf Ziel gebucht; die Ware von Lieferant B wird erst nächste Woche geliefert.",
+    soll: [{ a: "Wareneingang", b: 1200 }, { a: "Vorsteuer", b: 228 }], haben: [{ a: "Verbindlichkeiten", b: 1428 }] },
+  { cat: "realistisch", text: "Bei der Tageskasse wird ein gezählter Bestand von 842 € festgestellt, während das Kassenbuch einen Sollbestand von 850 € ausweist. Die Differenz von 8 € wird als Kassenfehlbetrag verbucht.",
+    soll: [{ a: "BFA", b: 8 }], haben: [{ a: "Kasse", b: 8 }] },
+  { cat: "realistisch", text: "Eine Ausgangsrechnung an einen Kunden enthält neben dem Warenwert (netto 2.500 €) auch separat ausgewiesene Verpackungskosten (netto 100 €); beide Positionen zusammen zzgl. 19 % Umsatzsteuer. Verkauf auf Ziel.",
+    soll: [{ a: "Forderungen", b: 3094 }], haben: [{ a: "Warenverkauf", b: 2600 }, { a: "Umsatzsteuer", b: 494 }] },
+  { cat: "realistisch", text: "Ein Kunde überweist zur Begleichung einer Forderung über 2.000 €; die Bank behält für die Auslandsüberweisung eine Gebühr von 15 € ein, sodass nur 1.985 € auf dem Geschäftskonto ankommen.",
+    soll: [{ a: "Bank", b: 1985 }, { a: "KGV", b: 15 }], haben: [{ a: "Forderungen", b: 2000 }] },
+  { cat: "realistisch", text: "Eine Wareneinkaufsrechnung über netto 900 € Warenwert enthält zusätzlich eine Abholpauschale (Warenbezugskosten) von netto 100 €; beide Positionen zusammen zzgl. 19 % Umsatzsteuer, Zahlung per Überweisung.",
+    soll: [{ a: "Wareneingang", b: 900 }, { a: "Warenbezugskosten", b: 100 }, { a: "Vorsteuer", b: 190 }], haben: [{ a: "Bank", b: 1190 }] },
+  { cat: "realistisch", text: "Der Großhandel erhält eine Rechnung über Wareneinkauf von netto 1.500 €, zzgl. 19 % Umsatzsteuer. Der Lieferant weist auf ein mögliches Skonto von 2 % bei Zahlung innerhalb von 10 Tagen hin — die Zahlung erfolgt jedoch erst nach 25 Tagen, sodass kein Skonto genutzt wird. Kauf auf Ziel.",
+    soll: [{ a: "Wareneingang", b: 1500 }, { a: "Vorsteuer", b: 285 }], haben: [{ a: "Verbindlichkeiten", b: 1785 }] },
+  { cat: "realistisch", text: "Eine Lieferantenrechnung enthält drei Warenpositionen: netto 300 €, netto 450 € und netto 350 €; die Summe wird zzgl. 19 % Umsatzsteuer in Rechnung gestellt, Zahlungsziel 30 Tage.",
+    soll: [{ a: "Wareneingang", b: 1100 }, { a: "Vorsteuer", b: 209 }], haben: [{ a: "Verbindlichkeiten", b: 1309 }] }
 ];
 
 // ---- Abschluss-Szenario: fester Jahresabschluss + Neueröffnung ----
