@@ -447,34 +447,65 @@
     }
   }
 
-  var ABSCHLUSS_NOTES = {
-    GuV: "Das GuV-Konto (9300) sammelt am Jahresende alle Erfolgskonten und ermittelt daraus Gewinn oder Verlust der Periode.",
-    SBK: "Das Schlussbilanzkonto (9400) übernimmt am Jahresende die Salden aller Bestandskonten und schließt sie ab.",
-    EBK: "Das Eröffnungsbilanzkonto (9100) eröffnet zu Beginn der neuen Periode die Bestandskonten mit den Salden aus dem Vorjahr."
-  };
-
   var SEITE_REGELN = {
     A_soll: "Zugang auf einem Aktivkonto — Aktivkonten werden im Soll gebucht, wenn sie zunehmen.",
     A_haben: "Abgang auf einem Aktivkonto — Aktivkonten werden im Haben gebucht, wenn sie abnehmen.",
     P_soll: "Abgang auf einem Passivkonto — Passivkonten werden im Soll gebucht, wenn sie abnehmen.",
     P_haben: "Zugang auf einem Passivkonto — Passivkonten werden im Haben gebucht, wenn sie zunehmen.",
     E_soll: "Ein Aufwand entsteht bzw. erhöht sich — Aufwandskonten werden wie Aktivkonten im Soll gebucht.",
-    E_haben: "Ein bereits gebuchter Aufwand wird gemindert (z. B. durch Rücksendung, Nachlass oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Haben.",
-    Er_soll: "Ein bereits gebuchter Ertrag wird gemindert (z. B. durch Rücksendung, Nachlass oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Soll.",
+    E_haben: "Ein bereits gebuchter Aufwand wird gemindert (z. B. durch Rücksendung, Nachlass, Bonus oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Haben.",
+    Er_soll: "Ein bereits gebuchter Ertrag wird gemindert (z. B. durch Rücksendung, Nachlass, Bonus oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Soll.",
     Er_haben: "Ein Ertrag entsteht bzw. erhöht sich — Ertragskonten werden wie Passivkonten im Haben gebucht."
   };
 
-  function explainLineHtml(line, seite) {
+  // Im Abschluss-Modus ist der Grund für Soll/Haben ein anderer als bei normalen
+  // Geschäftsfällen (kein Zugang/Abgang/Rücksendung, sondern Kontoabschluss bzw.
+  // -eröffnung) — deshalb eigene, phasenabhängige Erklärungen statt SEITE_REGELN.
+  function abschlussReason(line, seite, phase) {
     var acc = accounts[line.a];
-    var reason = acc.type === "K" ? (ABSCHLUSS_NOTES[line.a] || "") : SEITE_REGELN[acc.type + "_" + seite];
+    if (acc.type === "K") {
+      if (line.a === "GuV") {
+        return phase === 2
+          ? "Das GuV-Konto wird hier ausgeglichen: Sein Saldo (Gewinn oder Verlust) wandert auf das Eigenkapitalkonto."
+          : "Das GuV-Konto (9300) nimmt hier den Saldo dieses Erfolgskontos auf, um am Jahresende Gewinn oder Verlust zu ermitteln.";
+      }
+      if (line.a === "SBK") {
+        return "Das Schlussbilanzkonto (9400) übernimmt hier den Saldo dieses Bestandskontos, um es zum Jahresende zu schließen.";
+      }
+      if (line.a === "EBK") {
+        return "Das Eröffnungsbilanzkonto (9100) eröffnet hier dieses Bestandskonto mit seinem Saldo aus dem Vorjahr.";
+      }
+      return "";
+    }
+    if (phase === 1) {
+      if (acc.type === "E") return "Aufwandskonten stehen normalerweise im Soll. Zum Abschluss wird das Konto durch eine Gegenbuchung im Haben auf null gestellt — sein Saldo wandert auf das GuV-Konto.";
+      if (acc.type === "Er") return "Ertragskonten stehen normalerweise im Haben. Zum Abschluss wird das Konto durch eine Gegenbuchung im Soll auf null gestellt — sein Saldo wandert auf das GuV-Konto.";
+    }
+    if (phase === 3) {
+      if (acc.type === "A") return "Aktivkonten werden zum Jahresabschluss im Haben ausgeglichen und über das Schlussbilanzkonto (SBK) geschlossen.";
+      if (acc.type === "P") return "Passivkonten werden zum Jahresabschluss im Soll ausgeglichen und über das Schlussbilanzkonto (SBK) geschlossen.";
+    }
+    if (phase === 4) {
+      if (acc.type === "A") return "Aktivkonten werden zu Periodenbeginn im Soll eröffnet — mit dem Saldo, den sie beim Abschluss über das SBK hatten.";
+      if (acc.type === "P") return "Passivkonten werden zu Periodenbeginn im Haben eröffnet — mit dem Saldo, den sie beim Abschluss über das SBK hatten.";
+    }
+    // Phase 2 (Eigenkapital) und alle übrigen Fälle: normale Zugang/Abgang-Regel passt hier weiterhin.
+    return SEITE_REGELN[acc.type + "_" + seite];
+  }
+
+  function explainLineHtml(line, seite, phase) {
+    var acc = accounts[line.a];
+    var reason = phase
+      ? abschlussReason(line, seite, phase)
+      : (acc.type === "K" ? "" : SEITE_REGELN[acc.type + "_" + seite]);
     return '<p class="explain-line"><strong>' + acc.label + "</strong> (" + fmt(line.b) + " €) steht im " +
       (seite === "soll" ? "Soll" : "Haben") + ": " + reason + "</p>";
   }
 
-  function showExplanationFor(task) {
+  function showExplanationFor(task, phase) {
     var html = "";
-    task.soll.forEach(function (l) { html += explainLineHtml(l, "soll"); });
-    task.haben.forEach(function (l) { html += explainLineHtml(l, "haben"); });
+    task.soll.forEach(function (l) { html += explainLineHtml(l, "soll", phase); });
+    task.haben.forEach(function (l) { html += explainLineHtml(l, "haben", phase); });
     var sollText = task.soll.map(function (l) { return accounts[l.a].label; }).join(" + ");
     var habenText = task.haben.map(function (l) { return accounts[l.a].label; }).join(" + ");
     html += '<p class="explain-summary">Buchungssatz: ' + sollText + " an " + habenText + "</p>";
@@ -483,14 +514,15 @@
   }
 
   explainBtn.addEventListener("click", function () {
-    var task;
+    var task, phase;
     if (state.category === "abschluss") {
       if (!abschlussState || abschlussState.done) return;
-      task = abschlussState.phases[abschlussState.phase][abschlussState.taskIndex];
+      phase = abschlussState.phase;
+      task = abschlussState.phases[phase][abschlussState.taskIndex];
     } else {
       task = state.pool[state.currentIndex];
     }
-    if (task) showExplanationFor(task);
+    if (task) showExplanationFor(task, phase);
   });
 
   explainCloseBtn.addEventListener("click", function () { explainModal.hidden = true; });
