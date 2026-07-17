@@ -15,6 +15,8 @@
     VgK: { type: "P", label: "0820 Verbindl. ggü. Kreditinstituten" },
     Verbindlichkeiten: { type: "P", label: "1710 Verbindlichkeiten a. L+L" },
     Umsatzsteuer: { type: "P", label: "1800 Umsatzsteuer" },
+    SonstVerbSt: { type: "P", label: "1910 Sonstige Verbindlichkeiten aus Steuern" },
+    SonstVerbSV: { type: "P", label: "1920 Sonstige Verbindlichkeiten der sozialen Sicherheit" },
 
     Wareneingang: { type: "E", label: "3010 Wareneingang" },
     Warenbezugskosten: { type: "E", label: "3020 Warenbezugskosten" },
@@ -25,12 +27,14 @@
     Miete: { type: "E", label: "4110 Miete" },
     Werbekosten: { type: "E", label: "4400 Werbe- u. Reisekosten" },
     Buerobedarf: { type: "E", label: "4810 Bürobedarf" },
+    KGV: { type: "E", label: "4860 Kosten des Geldverkehrs" },
     Zinsaufwendungen: { type: "E", label: "2100 Zinsaufwendungen" },
 
     Warenverkauf: { type: "Er", label: "8010 Warenverkauf" },
     RSK: { type: "Er", label: "8050 Rücksendungen von Kunden" },
     NLK: { type: "Er", label: "8060 Nachlässe an Kunden" },
     KSK: { type: "Er", label: "8080 Kundenskonti" },
+    SonstigeErtraege: { type: "Er", label: "2460 Sonstige Erträge" },
 
     GuV: { type: "K", label: "9300 Gewinn- und Verlustkonto" },
     SBK: { type: "K", label: "9400 Schlussbilanzkonto" },
@@ -39,14 +43,14 @@
 
   var openingBalances = {
     Kasse: 5000, Bank: 20000, Forderungen: 0, Vorsteuer: 0, Fuhrpark: 15000, BGA: 0, Warenbestand: 10000,
-    Eigenkapital: 30000, VgK: 20000, Verbindlichkeiten: 0, Umsatzsteuer: 0,
+    Eigenkapital: 30000, VgK: 20000, Verbindlichkeiten: 0, Umsatzsteuer: 0, SonstVerbSt: 0, SonstVerbSV: 0,
     Wareneingang: 0, Warenbezugskosten: 0, RSL: 0, NLL: 0, LSK: 0,
-    Gehaelter: 0, Miete: 0, Werbekosten: 0, Buerobedarf: 0, Zinsaufwendungen: 0,
-    Warenverkauf: 0, RSK: 0, NLK: 0, KSK: 0
+    Gehaelter: 0, Miete: 0, Werbekosten: 0, Buerobedarf: 0, KGV: 0, Zinsaufwendungen: 0,
+    Warenverkauf: 0, RSK: 0, NLK: 0, KSK: 0, SonstigeErtraege: 0
   };
 
   var AKTIVA_KEYS = ["Kasse", "Bank", "Forderungen", "Vorsteuer", "Fuhrpark", "BGA", "Warenbestand"];
-  var PASSIVA_KEYS = ["Eigenkapital", "VgK", "Verbindlichkeiten", "Umsatzsteuer"];
+  var PASSIVA_KEYS = ["Eigenkapital", "VgK", "Verbindlichkeiten", "Umsatzsteuer", "SonstVerbSt", "SonstVerbSV"];
 
   // ---- case pool ----
   // soll / haben are arrays of {a: Kontoschlüssel, b: Betrag} — so ein Fall kann
@@ -104,7 +108,21 @@
     { cat: "schwer", text: "Neue Büroausstattung wird auf Ziel gekauft, Netto 1.500 €, zzgl. 19 % Umsatzsteuer (285 €).",
       soll: [{ a: "BGA", b: 1500 }, { a: "Vorsteuer", b: 285 }], haben: [{ a: "Verbindlichkeiten", b: 1785 }] },
     { cat: "schwer", text: "Für ein Darlehen wird per Bank eine Rate von 1.000 € gezahlt: 800 € Tilgung und 200 € Zinsen.",
-      soll: [{ a: "VgK", b: 800 }, { a: "Zinsaufwendungen", b: 200 }], haben: [{ a: "Bank", b: 1000 }] }
+      soll: [{ a: "VgK", b: 800 }, { a: "Zinsaufwendungen", b: 200 }], haben: [{ a: "Bank", b: 1000 }] },
+
+    // -- realistisch: Fälle mit Kontext, wie sie in echten Belegen vorkommen (mit Angaben, die selbst berechnet werden müssen) --
+    { cat: "realistisch", text: "Eingangsrechnung eines Lieferanten (Rechnungs-Nr. 24-3391) über Waren im Wert von netto 2.400 €, zuzüglich der gesetzlichen Umsatzsteuer von 19 %. Zahlungsziel: 30 Tage.",
+      soll: [{ a: "Wareneingang", b: 2400 }, { a: "Vorsteuer", b: 456 }], haben: [{ a: "Verbindlichkeiten", b: 2856 }] },
+    { cat: "realistisch", text: "Für eine Mitarbeiterin fällt ein Bruttogehalt von 3.200 € an. Einbehalten werden 200 € Lohnsteuer und 400 € Sozialversicherungsbeiträge, die an das Finanzamt bzw. die Sozialversicherungsträger abgeführt werden. Der Restbetrag wird per Bank ausgezahlt.",
+      soll: [{ a: "Gehaelter", b: 3200 }], haben: [{ a: "Bank", b: 2600 }, { a: "SonstVerbSt", b: 200 }, { a: "SonstVerbSV", b: 400 }] },
+    { cat: "realistisch", text: "Eine Sammelrechnung eines Lieferanten enthält sowohl den Warenwert (netto 1.800 €) als auch separat ausgewiesene Frachtkosten (netto 100 €); beide Positionen zusammen zzgl. 19 % Umsatzsteuer. Bezahlung per Überweisung nach Wareneingang.",
+      soll: [{ a: "Wareneingang", b: 1800 }, { a: "Warenbezugskosten", b: 100 }, { a: "Vorsteuer", b: 361 }], haben: [{ a: "Bank", b: 2261 }] },
+    { cat: "realistisch", text: "Die Bank belastet das Geschäftskonto mit den vierteljährlichen Kontoführungsgebühren von netto 100 €, zzgl. 19 % Umsatzsteuer, direkt per Lastschrift.",
+      soll: [{ a: "KGV", b: 100 }, { a: "Vorsteuer", b: 19 }], haben: [{ a: "Bank", b: 119 }] },
+    { cat: "realistisch", text: "Ein Großkunde bestellt Waren im regulären Wert von netto 4.000 €. Wegen der Bestellmenge gewährt der Großhandel einen Rabatt von 10 % direkt auf der Rechnung; in Rechnung gestellt werden daher netto 3.600 € zzgl. 19 % Umsatzsteuer. Verkauf auf Ziel.",
+      soll: [{ a: "Forderungen", b: 4284 }], haben: [{ a: "Warenverkauf", b: 3600 }, { a: "Umsatzsteuer", b: 684 }] },
+    { cat: "realistisch", text: "Ein Kunde begleicht eine überfällige Rechnung über 1.200 € per Überweisung. Da die Zahlung verspätet erfolgt, berechnet der Großhandel zusätzlich eine Mahngebühr von 15 €, die der Kunde im selben Überweisungsbetrag mitüberweist.",
+      soll: [{ a: "Bank", b: 1215 }], haben: [{ a: "Forderungen", b: 1200 }, { a: "SonstigeErtraege", b: 15 }] }
   ];
 
   // ---- Abschluss-Szenario: fester Jahresabschluss + Neueröffnung ----
@@ -419,7 +437,7 @@
 
   function addRow(side) {
     var container = side === "soll" ? sollRowsEl : habenRowsEl;
-    if (container.children.length >= 2) return;
+    if (container.children.length >= 3) return;
     container.appendChild(makeRow());
   }
 
@@ -670,4 +688,5 @@
   state.pool = poolForCategory(state.category);
   renderBilanz();
   loadCase();
+  bilanzPanel.classList.toggle("is-hidden", !bilanzToggle.checked);
 })();
