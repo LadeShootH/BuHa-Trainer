@@ -127,6 +127,10 @@ var cases = [
     soll: [{ a: "BGA", b: 1500 }, { a: "Vorsteuer", b: 285 }], haben: [{ a: "Verbindlichkeiten", b: 1785 }] },
   { cat: "schwer", text: "Für ein Darlehen wird per Bank eine Rate von 1.000 € gezahlt: 800 € Tilgung und 200 € Zinsen.",
     soll: [{ a: "VgK", b: 800 }, { a: "Zinsaufwendungen", b: 200 }], haben: [{ a: "Bank", b: 1000 }] },
+  { cat: "schwer", text: "Eine Verbindlichkeit über 2.500 € wird innerhalb der Skontofrist beglichen: 3 % Skonto (75 €) werden abgezogen, der Restbetrag von 2.425 € wird per Bank überwiesen.",
+    soll: [{ a: "Verbindlichkeiten", b: 2500 }], haben: [{ a: "Bank", b: 2425 }, { a: "LSK", b: 75 }] },
+  { cat: "schwer", text: "Ein Kunde begleicht eine Forderung von 1.500 € abzüglich 2 % Kundenskonto (30 €); der Restbetrag von 1.470 € geht per Bank ein.",
+    soll: [{ a: "Bank", b: 1470 }, { a: "KSK", b: 30 }], haben: [{ a: "Forderungen", b: 1500 }] },
 
   // -- realistisch: Fälle mit Kontext, wie sie in echten Belegen vorkommen (mit Angaben, die selbst berechnet werden müssen) --
   { cat: "realistisch", text: "Eingangsrechnung eines Lieferanten (Rechnungs-Nr. 24-3391) über Waren im Wert von netto 2.400 €, zuzüglich der gesetzlichen Umsatzsteuer von 19 %. Zahlungsziel: 30 Tage.",
@@ -140,7 +144,11 @@ var cases = [
   { cat: "realistisch", text: "Ein Großkunde bestellt Waren im regulären Wert von netto 4.000 €. Wegen der Bestellmenge gewährt der Großhandel einen Rabatt von 10 % direkt auf der Rechnung; in Rechnung gestellt werden daher netto 3.600 € zzgl. 19 % Umsatzsteuer. Verkauf auf Ziel.",
     soll: [{ a: "Forderungen", b: 4284 }], haben: [{ a: "Warenverkauf", b: 3600 }, { a: "Umsatzsteuer", b: 684 }] },
   { cat: "realistisch", text: "Ein Kunde begleicht eine überfällige Rechnung über 1.200 € per Überweisung. Da die Zahlung verspätet erfolgt, berechnet der Großhandel zusätzlich eine Mahngebühr von 15 €, die der Kunde im selben Überweisungsbetrag mitüberweist.",
-    soll: [{ a: "Bank", b: 1215 }], haben: [{ a: "Forderungen", b: 1200 }, { a: "SonstigeErtraege", b: 15 }] }
+    soll: [{ a: "Bank", b: 1215 }], haben: [{ a: "Forderungen", b: 1200 }, { a: "SonstigeErtraege", b: 15 }] },
+  { cat: "realistisch", text: "Eine Verbindlichkeit über 3.570 € (brutto, ursprünglich netto 3.000 € zzgl. 19 % Umsatzsteuer) wird innerhalb der Skontofrist beglichen. Der Lieferant gewährt Skonto in Höhe von netto 100 € zzgl. anteiliger Vorsteuerkorrektur von 19 €; der Restbetrag von 3.451 € wird per Bank überwiesen.",
+    soll: [{ a: "Verbindlichkeiten", b: 3570 }], haben: [{ a: "Bank", b: 3451 }, { a: "LSK", b: 100 }, { a: "Vorsteuer", b: 19 }] },
+  { cat: "realistisch", text: "Ein Kunde begleicht eine Forderung über 4.760 € (brutto, ursprünglich netto 4.000 € zzgl. 19 % Umsatzsteuer). Es wird ein Kundenskonto von netto 200 € zzgl. anteiliger Umsatzsteuerkorrektur von 38 € gewährt; der Restbetrag von 4.522 € geht per Bank ein.",
+    soll: [{ a: "Bank", b: 4522 }, { a: "KSK", b: 200 }, { a: "Umsatzsteuer", b: 38 }], haben: [{ a: "Forderungen", b: 4760 }] }
 ];
 
 // ---- Abschluss-Szenario: fester Jahresabschluss + Neueröffnung ----
