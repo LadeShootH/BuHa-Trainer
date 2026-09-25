@@ -1,8 +1,8 @@
 // ============================================================
-// BuHaSim — Übungsdaten
+// BuHaSim: Übungsdaten
 // ------------------------------------------------------------
 // Diese Datei enthält NUR Daten (Konten, Eröffnungsbilanz,
-// Übungsfälle, Abschluss-Szenario) — keine Anwendungslogik.
+// Übungsfälle, Abschluss-Szenario). Keine Anwendungslogik.
 // Neue Übungsfälle einfach unten im `cases`-Array unter der
 // passenden Kategorie ergänzen:
 //   grundlagen | ust | schwer | realistisch
@@ -75,7 +75,7 @@ var AKTIVA_KEYS = ["Kasse", "Bank", "Forderungen", "Vorsteuer", "Fuhrpark", "BGA
 var PASSIVA_KEYS = ["Eigenkapital", "VgK", "Verbindlichkeiten", "Umsatzsteuer", "SonstVerbSt", "SonstVerbSV"];
 
 // ---- case pool ----
-// soll / haben are arrays of {a: Kontoschlüssel, b: Betrag} — so ein Fall kann
+// soll / haben are arrays of {a: Kontoschlüssel, b: Betrag}. So ein Fall kann
 // einfach (1:1) oder zusammengesetzt (mehrere Konten je Seite) sein.
 var cases = [
   // -- grundlagen: einfache 1:1-Buchungssätze --
@@ -145,7 +145,7 @@ var cases = [
     soll: [{ a: "BGA", b: 1800 }, { a: "Vorsteuer", b: 342 }], haben: [{ a: "Bank", b: 2142 }] },
   { cat: "ust", text: "Bürobedarf wird per Überweisung bezahlt, Netto 900 €, zzgl. 19 % Umsatzsteuer (171 €).",
     soll: [{ a: "Buerobedarf", b: 900 }, { a: "Vorsteuer", b: 171 }], haben: [{ a: "Bank", b: 1071 }] },
-  { cat: "ust", text: "Die Miete für die Lagerhalle wird per Bank bezahlt, Netto 700 €, zzgl. 19 % Umsatzsteuer (133 €) — der Vermieter hat zur Umsatzsteuerpflicht optiert.",
+  { cat: "ust", text: "Die Miete für die Lagerhalle wird per Bank bezahlt, Netto 700 €, zzgl. 19 % Umsatzsteuer (133 €). Der Vermieter hat zur Umsatzsteuerpflicht optiert.",
     soll: [{ a: "Miete", b: 700 }, { a: "Vorsteuer", b: 133 }], haben: [{ a: "Bank", b: 833 }] },
   { cat: "ust", text: "Warenverkauf auf Ziel, Netto 3.500 €, zzgl. 19 % Umsatzsteuer (665 €).",
     soll: [{ a: "Forderungen", b: 4165 }], haben: [{ a: "Warenverkauf", b: 3500 }, { a: "Umsatzsteuer", b: 665 }] },
@@ -211,7 +211,7 @@ var cases = [
     soll: [{ a: "Bank", b: 1985 }, { a: "KGV", b: 15 }], haben: [{ a: "Forderungen", b: 2000 }] },
   { cat: "realistisch", text: "Eine Wareneinkaufsrechnung über netto 900 € Warenwert enthält zusätzlich eine Abholpauschale (Warenbezugskosten) von netto 100 €; beide Positionen zusammen zzgl. 19 % Umsatzsteuer, Zahlung per Überweisung.",
     soll: [{ a: "Wareneingang", b: 900 }, { a: "Warenbezugskosten", b: 100 }, { a: "Vorsteuer", b: 190 }], haben: [{ a: "Bank", b: 1190 }] },
-  { cat: "realistisch", text: "Der Großhandel erhält eine Rechnung über Wareneinkauf von netto 1.500 €, zzgl. 19 % Umsatzsteuer. Der Lieferant weist auf ein mögliches Skonto von 2 % bei Zahlung innerhalb von 10 Tagen hin — die Zahlung erfolgt jedoch erst nach 25 Tagen, sodass kein Skonto genutzt wird. Kauf auf Ziel.",
+  { cat: "realistisch", text: "Der Großhandel erhält eine Rechnung über Wareneinkauf von netto 1.500 €, zzgl. 19 % Umsatzsteuer. Der Lieferant weist auf ein mögliches Skonto von 2 % bei Zahlung innerhalb von 10 Tagen hin. Die Zahlung erfolgt jedoch erst nach 25 Tagen, sodass kein Skonto genutzt wird. Kauf auf Ziel.",
     soll: [{ a: "Wareneingang", b: 1500 }, { a: "Vorsteuer", b: 285 }], haben: [{ a: "Verbindlichkeiten", b: 1785 }] },
   { cat: "realistisch", text: "Eine Lieferantenrechnung enthält drei Warenpositionen: netto 300 €, netto 450 € und netto 350 €; die Summe wird zzgl. 19 % Umsatzsteuer in Rechnung gestellt, Zahlungsziel 30 Tage.",
     soll: [{ a: "Wareneingang", b: 1100 }, { a: "Vorsteuer", b: 209 }], haben: [{ a: "Verbindlichkeiten", b: 1309 }] }

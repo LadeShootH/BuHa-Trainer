@@ -173,7 +173,7 @@
   function showStoryComplete() {
     chapterEl.textContent = "Ende";
     dateEl.textContent = "";
-    narrativeEl.textContent = "Du hast die Meyer Großhandel GmbH durch ihr komplettes erstes Geschäftsjahr begleitet — von der Gründung bis zum fertigen Jahresabschluss.";
+    narrativeEl.textContent = "Du hast die Meyer Großhandel GmbH durch ihr komplettes erstes Geschäftsjahr begleitet: von der Gründung bis zum fertigen Jahresabschluss.";
     taskEl.textContent = "";
     progressEl.textContent = "Buchung " + storySteps.length + " / " + storySteps.length;
     progressFillEl.style.width = "100%";

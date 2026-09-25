@@ -355,7 +355,7 @@
     nextBtn.textContent = "Neue Runde starten";
     explainBtn.hidden = true;
     feedbackEl.className = "feedback is-correct";
-    feedbackTextEl.textContent = "🎉 Herzlichen Glückwunsch — du hast alle Fälle in „" + label + "“ einmal durchgespielt! Probier dich doch mal an den anderen Bereichen.";
+    feedbackTextEl.textContent = "Geschafft: Du hast alle Fälle in „" + label + "“ einmal durchgespielt. Probier dich doch mal an den anderen Bereichen.";
     state.categoryComplete = true;
   }
 
@@ -448,19 +448,19 @@
   }
 
   var SEITE_REGELN = {
-    A_soll: "Zugang auf einem Aktivkonto — Aktivkonten werden im Soll gebucht, wenn sie zunehmen.",
-    A_haben: "Abgang auf einem Aktivkonto — Aktivkonten werden im Haben gebucht, wenn sie abnehmen.",
-    P_soll: "Abgang auf einem Passivkonto — Passivkonten werden im Soll gebucht, wenn sie abnehmen.",
-    P_haben: "Zugang auf einem Passivkonto — Passivkonten werden im Haben gebucht, wenn sie zunehmen.",
-    E_soll: "Ein Aufwand entsteht bzw. erhöht sich — Aufwandskonten werden wie Aktivkonten im Soll gebucht.",
-    E_haben: "Ein bereits gebuchter Aufwand wird gemindert (z. B. durch Rücksendung, Nachlass, Bonus oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Haben.",
-    Er_soll: "Ein bereits gebuchter Ertrag wird gemindert (z. B. durch Rücksendung, Nachlass, Bonus oder Skonto) — deshalb steht das Konto hier ausnahmsweise im Soll.",
-    Er_haben: "Ein Ertrag entsteht bzw. erhöht sich — Ertragskonten werden wie Passivkonten im Haben gebucht."
+    A_soll: "Zugang auf einem Aktivkonto. Aktivkonten werden im Soll gebucht, wenn sie zunehmen.",
+    A_haben: "Abgang auf einem Aktivkonto. Aktivkonten werden im Haben gebucht, wenn sie abnehmen.",
+    P_soll: "Abgang auf einem Passivkonto. Passivkonten werden im Soll gebucht, wenn sie abnehmen.",
+    P_haben: "Zugang auf einem Passivkonto. Passivkonten werden im Haben gebucht, wenn sie zunehmen.",
+    E_soll: "Ein Aufwand entsteht bzw. erhöht sich. Aufwandskonten werden wie Aktivkonten im Soll gebucht.",
+    E_haben: "Ein bereits gebuchter Aufwand wird gemindert (z. B. durch Rücksendung, Nachlass, Bonus oder Skonto). Deshalb steht das Konto hier ausnahmsweise im Haben.",
+    Er_soll: "Ein bereits gebuchter Ertrag wird gemindert (z. B. durch Rücksendung, Nachlass, Bonus oder Skonto). Deshalb steht das Konto hier ausnahmsweise im Soll.",
+    Er_haben: "Ein Ertrag entsteht bzw. erhöht sich. Ertragskonten werden wie Passivkonten im Haben gebucht."
   };
 
   // Im Abschluss-Modus ist der Grund für Soll/Haben ein anderer als bei normalen
   // Geschäftsfällen (kein Zugang/Abgang/Rücksendung, sondern Kontoabschluss bzw.
-  // -eröffnung) — deshalb eigene, phasenabhängige Erklärungen statt SEITE_REGELN.
+  // -eröffnung). Deshalb eigene, phasenabhängige Erklärungen statt SEITE_REGELN.
   function abschlussReason(line, seite, phase) {
     var acc = accounts[line.a];
     if (acc.type === "K") {
@@ -478,16 +478,16 @@
       return "";
     }
     if (phase === 1) {
-      if (acc.type === "E") return "Aufwandskonten stehen normalerweise im Soll. Zum Abschluss wird das Konto durch eine Gegenbuchung im Haben auf null gestellt — sein Saldo wandert auf das GuV-Konto.";
-      if (acc.type === "Er") return "Ertragskonten stehen normalerweise im Haben. Zum Abschluss wird das Konto durch eine Gegenbuchung im Soll auf null gestellt — sein Saldo wandert auf das GuV-Konto.";
+      if (acc.type === "E") return "Aufwandskonten stehen normalerweise im Soll. Zum Abschluss wird das Konto durch eine Gegenbuchung im Haben auf null gestellt. Sein Saldo wandert auf das GuV-Konto.";
+      if (acc.type === "Er") return "Ertragskonten stehen normalerweise im Haben. Zum Abschluss wird das Konto durch eine Gegenbuchung im Soll auf null gestellt. Sein Saldo wandert auf das GuV-Konto.";
     }
     if (phase === 3) {
       if (acc.type === "A") return "Aktivkonten werden zum Jahresabschluss im Haben ausgeglichen und über das Schlussbilanzkonto (SBK) geschlossen.";
       if (acc.type === "P") return "Passivkonten werden zum Jahresabschluss im Soll ausgeglichen und über das Schlussbilanzkonto (SBK) geschlossen.";
     }
     if (phase === 4) {
-      if (acc.type === "A") return "Aktivkonten werden zu Periodenbeginn im Soll eröffnet — mit dem Saldo, den sie beim Abschluss über das SBK hatten.";
-      if (acc.type === "P") return "Passivkonten werden zu Periodenbeginn im Haben eröffnet — mit dem Saldo, den sie beim Abschluss über das SBK hatten.";
+      if (acc.type === "A") return "Aktivkonten werden zu Periodenbeginn im Soll eröffnet, mit dem Saldo, den sie beim Abschluss über das SBK hatten.";
+      if (acc.type === "P") return "Passivkonten werden zu Periodenbeginn im Haben eröffnet, mit dem Saldo, den sie beim Abschluss über das SBK hatten.";
     }
     // Phase 2 (Eigenkapital) und alle übrigen Fälle: normale Zugang/Abgang-Regel passt hier weiterhin.
     return SEITE_REGELN[acc.type + "_" + seite];

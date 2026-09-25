@@ -1,5 +1,5 @@
 // ============================================================
-// BuHaSim — Story-Modus: Daten
+// BuHaSim: Story-Modus-Daten
 // ------------------------------------------------------------
 // Eine feste, chronologische Abfolge von Geschäftsfällen für eine
 // fiktive Firma (Meyer Großhandel GmbH), erzählt als kleine
@@ -13,7 +13,7 @@
 //     narrative: "Erzähltext vor der Aufgabe",
 //     task: "Die eigentliche Buchungsaufgabe",
 //     soll / haben: wie in cases.js,
-//     reaction: optional — { type: "always"|"threshold", text,
+//     reaction: optional. { type: "always"|"threshold", text,
 //                             account, op, value }
 //       "always": Text wird nach richtiger Buchung immer gezeigt.
 //       "threshold": Text wird gezeigt, wenn balances[account] den
@@ -44,7 +44,7 @@ var storySteps = [
     narrative: "Für die Auslieferungen an Kunden wird ein gebrauchter Transporter benötigt. Er kostet 12.000 € und wird per Überweisung bezahlt.",
     task: "Buche den Kauf des Transporters für 12.000 € per Überweisung.",
     soll: [{ a: "Fuhrpark", b: 12000 }], haben: [{ a: "Bank", b: 12000 }],
-    reaction: { type: "threshold", account: "Bank", op: "<", value: 50000, text: "Die erste größere Investition ist raus — auf der Bank sieht man das schon deutlich." }
+    reaction: { type: "threshold", account: "Bank", op: "<", value: 50000, text: "Die erste größere Investition ist raus. Auf der Bank sieht man das schon deutlich." }
   },
 
   // -- Kapitel 2: Erste Geschäfte --
@@ -99,7 +99,7 @@ var storySteps = [
     narrative: "Um kurzfristig Bargeld in der Kasse zu haben, verkauft die GmbH Waren im Wert von netto 11.000 €, zuzüglich 19 % Umsatzsteuer (2.090 €), gegen sofortige Barzahlung.",
     task: "Buche den Barverkauf: netto 11.000 €, Umsatzsteuer 2.090 €, gegen bar.",
     soll: [{ a: "Kasse", b: 13090 }], haben: [{ a: "Warenverkauf", b: 11000 }, { a: "Umsatzsteuer", b: 2090 }],
-    reaction: { type: "threshold", account: "Kasse", op: ">", value: 10000, text: "Die Kasse ist auf einmal gut gefüllt — nicht schlecht für einen spontanen Barverkauf." }
+    reaction: { type: "threshold", account: "Kasse", op: ">", value: 10000, text: "Die Kasse ist auf einmal gut gefüllt, nicht schlecht für einen spontanen Barverkauf." }
   },
   {
     chapter: "Wachstum",
@@ -114,14 +114,14 @@ var storySteps = [
     narrative: "Die erste Rate für das Bankdarlehen wird fällig: 2.000 € per Überweisung, davon 1.600 € Tilgung und 400 € Zinsen.",
     task: "Buche die Darlehensrate: 1.600 € Tilgung, 400 € Zinsen, per Bank.",
     soll: [{ a: "VgK", b: 1600 }, { a: "Zinsaufwendungen", b: 400 }], haben: [{ a: "Bank", b: 2000 }],
-    reaction: { type: "always", text: "Die erste Darlehensrate ist getilgt — Schritt für Schritt wird die Schuld kleiner." }
+    reaction: { type: "always", text: "Die erste Darlehensrate ist getilgt. Schritt für Schritt wird die Schuld kleiner." }
   },
 
   // -- Kapitel 4: Jahresabschluss (verkürzt: nur die tatsächlich bebuchten Konten) --
   {
     chapter: "Jahresabschluss",
     date: "31. Dezember",
-    narrative: "Das erste Geschäftsjahr ist vorbei. Bevor die Bücher geschlossen werden, müssen alle Erfolgskonten auf das GuV-Konto übertragen werden — angefangen beim Wareneingang.",
+    narrative: "Das erste Geschäftsjahr ist vorbei. Bevor die Bücher geschlossen werden, müssen alle Erfolgskonten auf das GuV-Konto übertragen werden, angefangen beim Wareneingang.",
     task: "Schließe das Konto 3010 Wareneingang ab (Saldo 8.000 € im Soll).",
     soll: [{ a: "GuV", b: 8000 }], haben: [{ a: "Wareneingang", b: 8000 }]
   },
@@ -156,15 +156,15 @@ var storySteps = [
   {
     chapter: "Jahresabschluss",
     date: "31. Dezember",
-    narrative: "Das GuV-Konto zeigt jetzt einen Überschuss von 1.400 € — die GmbH hat im ersten Jahr Gewinn gemacht! Dieser Gewinn wird auf das Eigenkapital übertragen.",
+    narrative: "Das GuV-Konto zeigt jetzt einen Überschuss von 1.400 €. Die GmbH hat im ersten Jahr Gewinn gemacht. Dieser Gewinn wird auf das Eigenkapital übertragen.",
     task: "Übertrage den Gewinn von 1.400 € vom GuV-Konto auf das Eigenkapital.",
     soll: [{ a: "GuV", b: 1400 }], haben: [{ a: "Eigenkapital", b: 1400 }],
-    reaction: { type: "always", text: "Die Firma schreibt im ersten Jahr schwarze Zahlen — ein guter Start!" }
+    reaction: { type: "always", text: "Die Firma schreibt im ersten Jahr schwarze Zahlen, ein guter Start." }
   },
   {
     chapter: "Jahresabschluss",
     date: "31. Dezember",
-    narrative: "Jetzt werden noch die Bestandskonten über das Schlussbilanzkonto (SBK) geschlossen — angefangen mit der Kasse.",
+    narrative: "Jetzt werden noch die Bestandskonten über das Schlussbilanzkonto (SBK) geschlossen, angefangen mit der Kasse.",
     task: "Schließe das Konto 1510 Kasse ab (Saldo 13.090 € im Soll).",
     soll: [{ a: "SBK", b: 13090 }], haben: [{ a: "Kasse", b: 13090 }]
   },
@@ -209,6 +209,6 @@ var storySteps = [
     narrative: "Und zuletzt die Umsatzsteuer, die die GmbH im nächsten Jahr ans Finanzamt abführen muss.",
     task: "Schließe das Konto 1800 Umsatzsteuer ab (Saldo 3.420 € im Haben).",
     soll: [{ a: "Umsatzsteuer", b: 3420 }], haben: [{ a: "SBK", b: 3420 }],
-    reaction: { type: "always", text: "🎉 Geschafft! Das erste Geschäftsjahr der Meyer Großhandel GmbH ist offiziell abgeschlossen — mit einem Gewinn von 1.400 €." }
+    reaction: { type: "always", text: "Geschafft: Das erste Geschäftsjahr der Meyer Großhandel GmbH ist offiziell abgeschlossen, mit einem Gewinn von 1.400 €." }
   }
 ];
