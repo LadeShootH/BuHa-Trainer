@@ -8,6 +8,7 @@
 
 - **Fünf Niveaustufen**: Grundlagen (einfache Buchungssätze), Mit Umsatzsteuer, Schwer (Rücksendungen, Nachlässe, Skonto), ein Abschluss-Modus (kompletter Jahresabschluss über GuV und Schlussbilanzkonto, danach Eröffnung des Folgejahres über das Eröffnungsbilanzkonto) sowie ein gemischter Modus
 - **Story-Modus**: Eine durchgehende Geschichte statt Zufallsfällen. Man begleitet eine fiktive Firma chronologisch durch ihr erstes Geschäftsjahr, von der Gründung bis zum Jahresabschluss, inklusive kleiner Reaktionen je nach Kontostand
+- **Skontorechnung**: Eigener Übungsbereich für Skonto als Rechenaufgabe statt Buchungssatz, für Einkauf (Skonto abziehen, entscheiden ob sich eine Finanzierung per Dispokredit lohnt) und Verkauf (Rechnungsbetrag hochrechnen, entscheiden ob Kundenskonto angeboten werden soll)
 - **Live-Bilanz**: Aktiva und Passiva aktualisieren sich in Echtzeit mit jeder richtigen Buchung, inklusive laufendem Periodengewinn, optional ausblendbar. Im Abschluss-Modus zeigt derselbe Bereich stattdessen live das jeweils aktive Abschlusskonto (GuV, SBK oder EBK)
 - **"Warum?"-Erklärung**: Nach jeder Eingabe lässt sich per Klick einblenden, warum welches Konto im Soll bzw. Haben steht, Zeile für Zeile nach den Grundregeln für Aktiv-, Passiv-, Aufwands- und Ertragskonten
 - **T-Konto-Formular**: Eingabe im Soll/Haben-Format, wie im echten Kontenrahmen

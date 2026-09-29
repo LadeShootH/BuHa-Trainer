@@ -212,3 +212,16 @@ button{font-family:var(--font-body);cursor:pointer;}
 .story-stat-label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
 .story-stat-value{font-family:var(--font-mono);font-size:20px;font-weight:500;}
 .story-hint{font-size:12px;color:var(--muted);margin:0;}
+
+/* Skontorechnung */
+.skonto-form{display:flex;flex-direction:column;gap:16px;}
+.skonto-input-area{display:flex;flex-direction:column;gap:14px;}
+.skonto-field{display:flex;flex-direction:column;gap:6px;}
+.skonto-field label{font-size:13px;color:var(--ink-soft);}
+.skonto-field input, .skonto-field select{width:100%;}
+
+.formel-list{display:flex;flex-direction:column;gap:14px;margin-bottom:14px;}
+.formel-item{padding-bottom:12px;border-bottom:1px solid var(--line);}
+.formel-item:last-child{border-bottom:none;padding-bottom:0;}
+.formel-title{font-size:13px;font-weight:500;margin:0 0 4px;color:var(--ink);}
+.formel-body{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin:0;line-height:1.5;}

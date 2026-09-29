@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Skontorechnung · BuHaSim</title>
+<meta name="description" content="Übe Skontorechnungen für Einkauf und Verkauf: Skonto abziehen, Skonto aufschlagen und entscheiden, ob sich Skonto lohnt." />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="stylesheet" href="fonts.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="wordmark">
+      <span class="eyebrow">Skontorechnung</span>
+      <h1><a href="index.html" style="color:inherit;text-decoration:none;">BuHaSim</a></h1>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html">Zum Übungsmodus</a>
+      <a href="story.html">Story-Modus</a>
+      <a href="https://github.com/LadeShootH/BuHa-Trainer" target="_blank" rel="noopener" class="gh-link">GitHub ↗</a>
+    </nav>
+  </div>
+  <div class="ledger-rule" aria-hidden="true"></div>
+</header>
+
+<section class="intro wrap">
+  <p class="intro-text">Hier geht es nicht um Buchungssätze, sondern ums Rechnen: Wie viel ist bei Skontoabzug zu zahlen, welcher Rechnungsbetrag muss ausgewiesen werden, und lohnt sich Skonto überhaupt, verglichen mit den Kosten eines Kontokorrent- bzw. Dispokredits?</p>
+</section>
+
+<main id="uebung" class="tool-section">
+  <div class="wrap">
+
+    <div class="tool-controls">
+      <div class="category-picker" role="group" aria-label="Aufgabentyp wählen">
+        <button class="cat-btn is-active" data-cat="abziehen">Skonto abziehen (Einkauf)</button>
+        <button class="cat-btn" data-cat="aufschlagen">Skonto aufschlagen (Verkauf)</button>
+        <button class="cat-btn" data-cat="nutzen">Skonto nutzen? (Einkauf)</button>
+        <button class="cat-btn" data-cat="gewaehren">Skonto gewähren? (Verkauf)</button>
+        <button class="cat-btn" data-cat="gemischt">Gemischt</button>
+      </div>
+    </div>
+
+    <div class="tool-grid">
+
+      <section class="case-panel" aria-labelledby="skonto-heading">
+        <div class="case-meta">
+          <span id="skonto-heading">Aufgabe 1 / –</span>
+          <span class="score-display">Richtig: <span id="skonto-score">0</span> · Serie: <span id="skonto-streak">0</span></span>
+        </div>
+
+        <div class="case-card">
+          <p id="skonto-text">Lädt…</p>
+        </div>
+
+        <form id="skonto-form" class="skonto-form" autocomplete="off">
+          <div id="skonto-input-area" class="skonto-input-area"></div>
+
+          <div class="form-actions">
+            <button type="submit" id="skonto-check-btn" class="btn-primary">Prüfen</button>
+            <button type="button" id="skonto-next-btn" class="btn-secondary" disabled>Nächste Aufgabe →</button>
+          </div>
+        </form>
+
+        <div id="skonto-feedback" class="feedback" role="status" aria-live="polite">
+          <span id="skonto-feedback-text"></span>
+          <button type="button" id="skonto-explain-btn" class="explain-btn" hidden>Warum?</button>
+        </div>
+      </section>
+
+      <aside class="bilanz-panel">
+        <div class="bilanz-header">
+          <h2>Formeln</h2>
+        </div>
+        <div class="formel-list">
+          <div class="formel-item">
+            <p class="formel-title">Skonto abziehen</p>
+            <p class="formel-body">Zahlbetrag = Brutto × (1 − Skontosatz/100)</p>
+          </div>
+          <div class="formel-item">
+            <p class="formel-title">Skonto aufschlagen</p>
+            <p class="formel-body">Rechnungsbetrag = Zielbetrag ÷ (1 − Skontosatz/100)</p>
+          </div>
+          <div class="formel-item">
+            <p class="formel-title">Effektiver Jahreszins des Skontos</p>
+            <p class="formel-body">(Skontosatz ÷ (100 − Skontosatz)) × (360 ÷ (Zahlungsziel − Skontofrist)) × 100</p>
+          </div>
+        </div>
+        <p class="story-hint">Beim Einkauf: Ist der Skontozins höher als der Dispozins, lohnt sich die Finanzierung. Beim Verkauf: Ist der Skontozins niedriger als der eigene Kontokorrentzins, lohnt sich das Angebot.</p>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>BuHaSim · gebaut zum Lernen</span>
+    <span>
+      <a href="https://github.com/LadeShootH/BuHa-Trainer" target="_blank" rel="noopener">Quellcode auf GitHub</a>
+      · <a href="impressum.html">Impressum</a>
+    </span>
+  </div>
+</footer>
+
+<div id="skonto-explain-modal" class="modal-overlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="skonto-explain-title">
+    <div class="modal-header">
+      <h3 id="skonto-explain-title">Rechenweg</h3>
+      <button type="button" id="skonto-explain-close-btn" class="modal-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="skonto-explain-body" class="modal-body"></div>
+  </div>
+</div>
+
+<script src="skonto-data.js"></script>
+<script src="skonto.js"></script>
+</body>
+</html>
