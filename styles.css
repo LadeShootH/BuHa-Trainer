@@ -225,3 +225,49 @@ button{font-family:var(--font-body);cursor:pointer;}
 .formel-item:last-child{border-bottom:none;padding-bottom:0;}
 .formel-title{font-size:13px;font-weight:500;margin:0 0 4px;color:var(--ink);}
 .formel-body{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+/* Einführung / Grundlagen-Guide */
+.guide-page{padding:40px 24px 60px;max-width:720px;}
+.guide-title{font-family:var(--font-display);font-weight:600;font-size:32px;margin:0 0 8px;}
+.guide-subtitle{color:var(--ink-soft);font-size:16px;margin:0 0 28px;max-width:560px;}
+
+.guide-toc{background:var(--surface-2);border-radius:var(--radius);padding:18px 20px;margin-bottom:36px;}
+.guide-toc-label{margin:0 0 10px;font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+.guide-toc ol{margin:0;padding-left:20px;}
+.guide-toc li{margin-bottom:4px;}
+.guide-toc a{text-decoration:underline;}
+
+.guide-section{margin-bottom:44px;}
+.guide-section h2{font-family:var(--font-display);font-weight:600;font-size:22px;margin:0 0 14px;scroll-margin-top:20px;}
+.guide-section h3{font-family:var(--font-body);font-weight:600;font-size:16px;margin:22px 0 8px;}
+.guide-section p{color:var(--ink);margin:0 0 14px;line-height:1.65;}
+.guide-section p:last-child{margin-bottom:0;}
+
+.rule-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+.rule-table th, .rule-table td{border:1px solid var(--line);padding:10px 12px;text-align:left;}
+.rule-table th{background:var(--surface-2);font-weight:500;}
+.rule-table td.is-soll{color:var(--accent-debit);font-weight:500;}
+.rule-table td.is-haben{color:var(--accent-credit);font-weight:500;}
+
+.guide-example{background:var(--surface-2);border-radius:var(--radius);padding:18px 20px;margin:16px 0;}
+.guide-example p{margin:0 0 10px;}
+.guide-example p:last-child{margin-bottom:0;}
+.guide-example-label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 8px;}
+
+.guide-steps{margin:16px 0;padding:0;list-style:none;counter-reset:guide-step;}
+.guide-steps li{position:relative;padding-left:40px;margin-bottom:16px;color:var(--ink);line-height:1.55;}
+.guide-steps li::before{counter-increment:guide-step;content:counter(guide-step);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);font-family:var(--font-mono);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;}
+
+.guide-mini-t{max-width:360px;margin:16px 0;}
+.guide-mini-t .t-side p{margin:0 0 6px;font-size:14px;}
+.guide-mini-t .t-side p:last-child{margin-bottom:0;}
+
+.guide-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;}
+.guide-cta a{display:inline-block;text-decoration:none;}
+
+@media (max-width:600px){
+  .guide-page{padding:28px 16px 48px;}
+  .guide-title{font-size:26px;}
+  .rule-table{font-size:12px;}
+  .rule-table th, .rule-table td{padding:7px 8px;}
+}

@@ -6,6 +6,7 @@
 
 ## Funktionen
 
+- **Einführung**: Eine eigene Seite für Einsteiger ohne Vorwissen, erklärt Schritt für Schritt, was eine Bilanz ist, wie Konten funktionieren und wie man aus einem Geschäftsfall einen Buchungssatz macht, mit zwei durchgerechneten Beispielen
 - **Fünf Niveaustufen**: Grundlagen (einfache Buchungssätze), Mit Umsatzsteuer, Schwer (Rücksendungen, Nachlässe, Skonto), ein Abschluss-Modus (kompletter Jahresabschluss über GuV und Schlussbilanzkonto, danach Eröffnung des Folgejahres über das Eröffnungsbilanzkonto) sowie ein gemischter Modus
 - **Story-Modus**: Eine durchgehende Geschichte statt Zufallsfällen. Man begleitet eine fiktive Firma chronologisch durch ihr erstes Geschäftsjahr, von der Gründung bis zum Jahresabschluss, inklusive kleiner Reaktionen je nach Kontostand
 - **Skontorechnung**: Eigener Übungsbereich für Skonto als Rechenaufgabe statt Buchungssatz, für Einkauf (Skonto abziehen, entscheiden ob sich eine Finanzierung per Dispokredit lohnt) und Verkauf (Rechnungsbetrag hochrechnen, entscheiden ob Kundenskonto angeboten werden soll)

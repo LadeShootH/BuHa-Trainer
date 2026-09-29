@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Einführung · BuHaSim</title>
+<meta name="description" content="Grundlagen für Einsteiger: wie und warum Buchungssätze und Bilanzen entstehen, Schritt für Schritt erklärt, ganz ohne Vorwissen." />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="stylesheet" href="fonts.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="wordmark">
+      <span class="eyebrow">Einführung</span>
+      <h1><a href="index.html" style="color:inherit;text-decoration:none;">BuHaSim</a></h1>
+    </div>
+    <nav class="header-nav">
+      <a href="index.html">Zur Übung</a>
+      <a href="story.html">Story-Modus</a>
+      <a href="skonto.html">Skontorechnung</a>
+      <a href="https://github.com/LadeShootH/BuHa-Trainer" target="_blank" rel="noopener" class="gh-link">GitHub ↗</a>
+    </nav>
+  </div>
+  <div class="ledger-rule" aria-hidden="true"></div>
+</header>
+
+<main class="guide-page wrap">
+  <h1 class="guide-title">Wie und warum entstehen Buchungssätze?</h1>
+  <p class="guide-subtitle">Diese Seite setzt kein Vorwissen voraus. Sie erklärt Schritt für Schritt, was eine Bilanz ist, wie Konten funktionieren und wie man aus einem Geschäftsfall einen korrekten Buchungssatz macht. Am Ende kannst du direkt in die Übung starten.</p>
+
+  <nav class="guide-toc" aria-label="Inhaltsverzeichnis">
+    <p class="guide-toc-label">Inhalt</p>
+    <ol>
+      <li><a href="#warum">Warum überhaupt Buchführung?</a></li>
+      <li><a href="#bilanz">Die Bilanz: Vermögen und Schulden im Gleichgewicht</a></li>
+      <li><a href="#konten">Von der Bilanz zum Konto</a></li>
+      <li><a href="#regel">Aktiv- und Passivkonten: die Grundregel</a></li>
+      <li><a href="#erfolg">Aufwand und Ertrag: wenn sich das Eigenkapital ändert</a></li>
+      <li><a href="#buchungssatz">Der Buchungssatz: „Soll an Haben“</a></li>
+      <li><a href="#schritte">Schritt für Schritt: so löst du jeden Buchungssatz</a></li>
+      <li><a href="#beispiel1">Beispiel 1: ein reiner Aktivtausch</a></li>
+      <li><a href="#beispiel2">Beispiel 2: eine Buchung mit Aufwand</a></li>
+      <li><a href="#weiter">Wie es weitergeht</a></li>
+    </ol>
+  </nav>
+
+  <section class="guide-section" id="warum">
+    <h2>Warum überhaupt Buchführung?</h2>
+    <p>Jedes Unternehmen muss zu jedem Zeitpunkt sagen können, was es besitzt (zum Beispiel Kasse, Bankguthaben, Maschinen, offene Kundenforderungen) und wem dieses Vermögen letztlich gehört: dem Eigentümer selbst (Eigenkapital) oder anderen, denen das Unternehmen noch etwas schuldet (Fremdkapital, also Schulden wie Verbindlichkeiten oder Kredite). Diese Übersicht ist außerdem gesetzlich vorgeschrieben und die Grundlage für Steuererklärung und Gewinnermittlung.</p>
+    <p>Um diese Übersicht laufend aktuell zu halten, wird jeder <strong>Geschäftsfall</strong>, also jedes einzelne Ereignis wie ein Einkauf, ein Verkauf oder eine Zahlung, in Form eines <strong>Buchungssatzes</strong> festgehalten. Die Summe aller Buchungssätze ergibt am Ende der Periode die <strong>Bilanz</strong>.</p>
+  </section>
+
+  <section class="guide-section" id="bilanz">
+    <h2>Die Bilanz: Vermögen und Schulden im Gleichgewicht</h2>
+    <p>Eine Bilanz hat zwei Seiten, die immer exakt gleich groß sein müssen:</p>
+    <table class="rule-table">
+      <thead>
+        <tr><th>Aktiva (linke Seite)</th><th>Passiva (rechte Seite)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Was das Unternehmen besitzt: Kasse, Bank, Maschinen, Forderungen …</td><td>Wem das Vermögen gehört: Eigenkapital, Verbindlichkeiten, Darlehen …</td></tr>
+      </tbody>
+    </table>
+    <p>Diese beiden Seiten müssen sich immer entsprechen, denn jedes Vermögen muss irgendwie finanziert sein, entweder durch den Eigentümer selbst oder durch Schulden bei Dritten. Deshalb heißt es Bilanz: von lateinisch „bilanx“, zwei Waagschalen, die im Gleichgewicht stehen.</p>
+  </section>
+
+  <section class="guide-section" id="konten">
+    <h2>Von der Bilanz zum Konto</h2>
+    <p>Eine Bilanz zu erstellen, sobald jeder einzelne Geschäftsfall passiert, wäre unpraktisch. Stattdessen wird für jeden Bilanzposten ein eigenes <strong>Konto</strong> geführt, zum Beispiel ein Konto „Kasse“ oder ein Konto „Verbindlichkeiten“. Jedes Konto hat die Form eines T, daher der Name <strong>T-Konto</strong>: eine linke Seite und eine rechte Seite.</p>
+    <div class="t-account guide-mini-t">
+      <div class="t-side" data-side="soll">
+        <div class="t-side-label">Soll</div>
+        <p>linke Seite</p>
+      </div>
+      <div class="t-divider" aria-hidden="true"></div>
+      <div class="t-side" data-side="haben">
+        <div class="t-side-label">Haben</div>
+        <p>rechte Seite</p>
+      </div>
+    </div>
+    <p><strong>Soll</strong> und <strong>Haben</strong> sind zunächst nichts weiter als die Namen für „links“ und „rechts“. Sie haben keine moralische Bedeutung und stehen nicht für gut oder schlecht. Am Ende der Periode wird jedes Konto verrechnet, sein Schlussbestand fließt in genau die Bilanzseite, auf der das Konto steht.</p>
+  </section>
+
+  <section class="guide-section" id="regel">
+    <h2>Aktiv- und Passivkonten: die Grundregel</h2>
+    <p>Weil ein Konto von der Aktivseite oder von der Passivseite der Bilanz abstammt, verhält es sich unterschiedlich:</p>
+    <table class="rule-table">
+      <thead>
+        <tr><th>Kontenart</th><th>Zugang (Zunahme)</th><th>Abgang (Abnahme)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Aktivkonto (z. B. Kasse, Bank, Forderungen, Maschinen)</td><td class="is-soll">Soll</td><td class="is-haben">Haben</td></tr>
+        <tr><td>Passivkonto (z. B. Eigenkapital, Verbindlichkeiten, Darlehen)</td><td class="is-haben">Haben</td><td class="is-soll">Soll</td></tr>
+      </tbody>
+    </table>
+    <p>Die Regel lässt sich so merken: Ein Konto beginnt seinen Anfangsbestand auf der Seite, von der es stammt (Aktivkonten links, Passivkonten rechts). Eine Zunahme wird auf derselben Seite gebucht wie der Anfangsbestand, eine Abnahme auf der Gegenseite.</p>
+  </section>
+
+  <section class="guide-section" id="erfolg">
+    <h2>Aufwand und Ertrag: wenn sich das Eigenkapital ändert</h2>
+    <p>Nicht jeder Geschäftsfall betrifft nur Bestandskonten. Zahlt das Unternehmen zum Beispiel Miete, sinkt sein Eigenkapital, weil Vermögen abfließt, ohne dass dafür ein neuer Vermögenswert entsteht. Damit man am Jahresende trotzdem sehen kann, wodurch sich das Eigenkapital verändert hat, werden solche Fälle nicht direkt auf dem Eigenkapitalkonto, sondern auf eigenen <strong>Erfolgskonten</strong> gesammelt:</p>
+    <table class="rule-table">
+      <thead>
+        <tr><th>Kontenart</th><th>Zugang (Zunahme)</th><th>Wirkung auf das Eigenkapital</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Aufwandskonto (z. B. Miete, Gehälter, Zinsaufwendungen)</td><td class="is-soll">Soll</td><td>mindert</td></tr>
+        <tr><td>Ertragskonto (z. B. Warenverkauf, Zinserträge)</td><td class="is-haben">Haben</td><td>erhöht</td></tr>
+      </tbody>
+    </table>
+    <p>Aufwandskonten verhalten sich also wie Aktivkonten (Zugang im Soll), Ertragskonten wie Passivkonten (Zugang im Haben). Am Jahresende werden alle Erfolgskonten über das Gewinn- und Verlustkonto (GuV) abgeschlossen und der Saldo dem Eigenkapital zugeschrieben. Genau das kannst du im <a href="index.html#uebung">Abschluss-Modus</a> der Übung nachvollziehen, sobald dir die Grundlagen hier vertraut sind.</p>
+  </section>
+
+  <section class="guide-section" id="buchungssatz">
+    <h2>Der Buchungssatz: „Soll an Haben“</h2>
+    <p>Jeder Geschäftsfall betrifft mindestens zwei Konten, nie nur eines. Bezahlt das Unternehmen zum Beispiel eine Rechnung per Bank, sinkt das Konto Bank und gleichzeitig sinkt das Konto Verbindlichkeiten. Weil immer zwei Konten betroffen sind und die gebuchten Beträge auf beiden Seiten stets gleich hoch sind, spricht man von <strong>doppelter Buchführung</strong>.</p>
+    <p>Ein Buchungssatz schreibt fest, welches Konto im Soll und welches im Haben bebucht wird, in der Form „Soll-Konto an Haben-Konto, Betrag“. Das Wort „an“ ersetzt dabei praktisch ein Gleichheitszeichen zwischen den beiden Seiten.</p>
+  </section>
+
+  <section class="guide-section" id="schritte">
+    <h2>Schritt für Schritt: so löst du jeden Buchungssatz</h2>
+    <ol class="guide-steps">
+      <li>Lies den Geschäftsfall genau und finde heraus, welche zwei (oder mehr) Konten betroffen sind.</li>
+      <li>Bestimme für jedes betroffene Konto die Kontenart: Aktiv-, Passiv-, Aufwands- oder Ertragskonto.</li>
+      <li>Entscheide für jedes Konto, ob es zunimmt (Zugang) oder abnimmt (Abgang).</li>
+      <li>Wende die Grundregel an: Zugang bei Aktiv- und Aufwandskonten kommt ins Soll, Zugang bei Passiv- und Ertragskonten ins Haben. Ein Abgang steht jeweils auf der Gegenseite.</li>
+      <li>Schreibe den Buchungssatz auf: Soll-Konto an Haben-Konto, Betrag. Prüfe zuletzt, ob beide Seiten denselben Betrag zeigen.</li>
+    </ol>
+  </section>
+
+  <section class="guide-section" id="beispiel1">
+    <h2>Beispiel 1: ein reiner Aktivtausch</h2>
+    <div class="guide-example">
+      <p class="guide-example-label">Geschäftsfall</p>
+      <p>Der Unternehmer hebt 1.000 € von der Bank ab und legt das Geld in die Kasse.</p>
+    </div>
+    <ol class="guide-steps">
+      <li>Betroffene Konten: Bank und Kasse.</li>
+      <li>Beide sind Aktivkonten (beides ist Vermögen des Unternehmens).</li>
+      <li>Die Kasse nimmt zu (Zugang), die Bank nimmt ab (Abgang).</li>
+      <li>Zugang bei einem Aktivkonto steht im Soll, also Kasse im Soll. Abgang bei einem Aktivkonto steht im Haben, also Bank im Haben.</li>
+      <li>Buchungssatz: <strong>Kasse an Bank, 1.000 €</strong>.</li>
+    </ol>
+    <p>Man nennt das einen <strong>Aktivtausch</strong>: Nur die Aktivseite der Bilanz ist betroffen, ein Vermögenswert wird gegen einen anderen getauscht. Die Bilanzsumme bleibt dabei unverändert.</p>
+  </section>
+
+  <section class="guide-section" id="beispiel2">
+    <h2>Beispiel 2: eine Buchung mit Aufwand</h2>
+    <div class="guide-example">
+      <p class="guide-example-label">Geschäftsfall</p>
+      <p>Für die Lagerhalle wird die Miete in Höhe von 800 € per Bank überwiesen.</p>
+    </div>
+    <ol class="guide-steps">
+      <li>Betroffene Konten: Mietaufwand und Bank.</li>
+      <li>Mietaufwand ist ein Aufwandskonto, Bank ist ein Aktivkonto.</li>
+      <li>Der Mietaufwand entsteht neu (Zugang), die Bank nimmt ab (Abgang).</li>
+      <li>Zugang bei einem Aufwandskonto steht im Soll, also Mietaufwand im Soll. Abgang bei einem Aktivkonto steht im Haben, also Bank im Haben.</li>
+      <li>Buchungssatz: <strong>Mietaufwand an Bank, 800 €</strong>.</li>
+    </ol>
+    <p>Hier ist nicht nur die Aktivseite betroffen: Über das Aufwandskonto sinkt am Jahresende auch das Eigenkapital. Die Bilanzsumme sinkt in diesem Fall, weil Vermögen (Bank) abfließt, ohne dass ein neuer Vermögenswert entsteht.</p>
+  </section>
+
+  <section class="guide-section" id="weiter">
+    <h2>Wie es weitergeht</h2>
+    <p>Mit diesen Regeln lässt sich jeder Buchungssatz herleiten, auch komplexere Fälle mit Umsatzsteuer oder mehreren Konten sind letztlich immer dieselbe Systematik, nur mit mehr beteiligten Konten. Am besten fängst du in der Übung mit der Kategorie „Grundlagen“ an und arbeitest dich von dort steigend durch die Niveaustufen.</p>
+    <div class="guide-cta">
+      <a href="index.html#uebung" class="btn-primary">Jetzt Buchungssätze üben →</a>
+      <a href="story.html" class="btn-secondary">Story-Modus ausprobieren</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>BuHaSim · gebaut zum Lernen</span>
+    <span>
+      <a href="https://github.com/LadeShootH/BuHa-Trainer" target="_blank" rel="noopener">Quellcode auf GitHub</a>
+      · <a href="impressum.html">Impressum</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
