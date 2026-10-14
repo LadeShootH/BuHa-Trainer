@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Abschreibungen (AfA) · BuHaSim</title>
+<meta name="description" content="Übe Abschreibungen (AfA): lineare und degressive Abschreibung, zeitanteilige AfA im Anschaffungsjahr, Restbuchwert und geringwertige Wirtschaftsgüter." />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="stylesheet" href="fonts.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="wordmark">
+      <span class="eyebrow">Abschreibungen (AfA)</span>
+      <h1><a href="index.html" style="color:inherit;text-decoration:none;">BuHaSim</a></h1>
+    </div>
+    <nav class="header-nav">
+      <a href="einfuehrung.html">Einführung</a>
+      <a href="index.html">Zum Übungsmodus</a>
+      <a href="story.html">Story-Modus</a>
+      <a href="skonto.html">Skontorechnung</a>
+      <a href="https://github.com/LadeShootH/BuHa-Trainer" target="_blank" rel="noopener" class="gh-link">GitHub ↗</a>
+    </nav>
+  </div>
+  <div class="ledger-rule" aria-hidden="true"></div>
+</header>
+
+<section class="intro wrap">
+  <p class="intro-text">Hier geht es ums Rechnen mit Abschreibungen (AfA = Absetzung für Abnutzung): Wie hoch ist der jährliche Abschreibungsbetrag, wie viel fällt im Anschaffungsjahr an, wie hoch ist der Restbuchwert, und wann darf ein geringwertiges Wirtschaftsgut sofort abgeschrieben werden? Alle Beträge netto, die Vorsteuer gehört nicht zu den Anschaffungskosten.</p>
+</section>
+
+<main id="uebung" class="tool-section">
+  <div class="wrap">
+
+    <div class="tool-controls">
+      <div class="category-picker" role="group" aria-label="Aufgabentyp wählen">
+        <button class="cat-btn is-active" data-cat="linear">Lineare AfA</button>
+        <button class="cat-btn" data-cat="zeitanteilig">AfA im Anschaffungsjahr</button>
+        <button class="cat-btn" data-cat="restbuchwert">Restbuchwert</button>
+        <button class="cat-btn" data-cat="degressiv">Degressive AfA</button>
+        <button class="cat-btn" data-cat="gwg">GWG</button>
+        <button class="cat-btn" data-cat="gemischt">Gemischt</button>
+      </div>
+    </div>
+
+    <div class="tool-grid">
+
+      <section class="case-panel" aria-labelledby="afa-heading">
+        <div class="case-meta">
+          <span id="afa-heading">Aufgabe 1 / –</span>
+          <span class="score-display">Richtig: <span id="afa-score">0</span> · Serie: <span id="afa-streak">0</span></span>
+        </div>
+
+        <div class="case-card">
+          <p id="afa-text">Lädt…</p>
+        </div>
+
+        <form id="afa-form" class="skonto-form" autocomplete="off">
+          <div id="afa-input-area" class="skonto-input-area"></div>
+
+          <div class="form-actions">
+            <button type="submit" id="afa-check-btn" class="btn-primary">Prüfen</button>
+            <button type="button" id="afa-next-btn" class="btn-secondary" disabled>Nächste Aufgabe →</button>
+          </div>
+        </form>
+
+        <div id="afa-feedback" class="feedback" role="status" aria-live="polite">
+          <span id="afa-feedback-text"></span>
+          <button type="button" id="afa-explain-btn" class="explain-btn" hidden>Warum?</button>
+        </div>
+      </section>
+
+      <aside class="bilanz-panel">
+        <div class="bilanz-header">
+          <h2>Formeln</h2>
+        </div>
+        <div class="formel-list">
+          <div class="formel-item">
+            <p class="formel-title">Lineare AfA (pro Jahr)</p>
+            <p class="formel-body">AfA = Anschaffungskosten ÷ Nutzungsdauer</p>
+          </div>
+          <div class="formel-item">
+            <p class="formel-title">Im Anschaffungsjahr (monatsgenau)</p>
+            <p class="formel-body">AfA = Jahres-AfA × Monate ÷ 12 (Anschaffungsmonat zählt voll)</p>
+          </div>
+          <div class="formel-item">
+            <p class="formel-title">Restbuchwert (linear)</p>
+            <p class="formel-body">Buchwert = AK − AfA pro Jahr × Jahre</p>
+          </div>
+          <div class="formel-item">
+            <p class="formel-title">Degressive AfA</p>
+            <p class="formel-body">AfA = Restbuchwert zu Jahresbeginn × Satz/100</p>
+          </div>
+        </div>
+        <p class="story-hint">Buchungssatz zum Jahresabschluss: Abschreibungen auf Sachanlagen (Aufwand, Soll) an das Anlagekonto, z. B. Fuhrpark (Haben). Der Aufwand mindert den Gewinn, der Buchwert des Anlageguts sinkt.</p>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>BuHaSim · gebaut zum Lernen</span>
+    <span>
+      <a href="https://github.com/LadeShootH/BuHa-Trainer" target="_blank" rel="noopener">Quellcode auf GitHub</a>
+      · <a href="impressum.html">Impressum</a>
+    </span>
+  </div>
+</footer>
+
+<div id="afa-explain-modal" class="modal-overlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="afa-explain-title">
+    <div class="modal-header">
+      <h3 id="afa-explain-title">Rechenweg</h3>
+      <button type="button" id="afa-explain-close-btn" class="modal-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="afa-explain-body" class="modal-body"></div>
+  </div>
+</div>
+
+<script src="afa-data.js"></script>
+<script src="afa.js"></script>
+</body>
+</html>
